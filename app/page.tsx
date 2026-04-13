@@ -1,11 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TaskList } from "@/components/TaskList";
 
 export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <>
@@ -26,12 +34,14 @@ export default function Home() {
           ${isMobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
       >
-        <button
-          className="absolute top-4 right-4 lg:hidden material-symbols-outlined text-on-surface"
-          onClick={() => setIsMobileNavOpen(false)}
-        >
-          close
-        </button>
+        {isMobile && (
+          <button
+            className="absolute top-4 right-4 material-symbols-outlined text-on-surface"
+            onClick={() => setIsMobileNavOpen(false)}
+          >
+            close
+          </button>
+        )}
         <div className="mb-10 px-2">
           <h1 className="text-xl font-bold tracking-tight text-[#dae2fd]">
             TaskFlow
@@ -99,12 +109,14 @@ export default function Home() {
       {/* TopNavBar */}
       <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-[#0b1326]/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
         <div className="flex items-center gap-3">
-          <button
-            className="lg:hidden material-symbols-outlined text-on-surface"
-            onClick={() => setIsMobileNavOpen(true)}
-          >
-            menu
-          </button>
+          {isMobile && (
+            <button
+              className="material-symbols-outlined text-on-surface"
+              onClick={() => setIsMobileNavOpen(true)}
+            >
+              menu
+            </button>
+          )}
           <div className="hidden lg:flex items-center bg-surface-container-lowest px-4 py-2 rounded-full w-96">
             <span className="material-symbols-outlined text-on-surface-variant text-lg">
               search
@@ -141,21 +153,6 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
-        {/* Header Section */}
-        <section className="mb-8 lg:mb-12 flex justify-between items-end">
-          <div className="max-w-2xl">
-            <h2 className="text-3xl lg:text-[3.5rem] font-bold tracking-tighter leading-tight text-on-surface mb-4">
-              Focus.
-            </h2>
-            <p className="text-on-surface-variant text-lg max-w-lg leading-relaxed">
-              Efficiency is the art of eliminating the non-essential. Your
-              workspace is currently managing{" "}
-              <span className="text-primary font-bold">12 active tasks</span>{" "}
-              across 3 core verticals.
-            </p>
-          </div>
-        </section>
-
         {/* Task List */}
         <TaskList
           externalFormOpen={isFormOpen}
