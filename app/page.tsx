@@ -5,11 +5,33 @@ import { TaskList } from "@/components/TaskList";
 
 export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
     <>
-      {/* SideNavBar */}
-      <aside className="w-[280px] h-screen fixed left-0 top-0 bg-[#060e20] flex flex-col py-8 px-6 z-50">
+      {/* Mobile Nav Overlay */}
+      {isMobileNavOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileNavOpen(false)}
+        />
+      )}
+
+      {/* SideNavBar - hidden on mobile, shown as slide-out overlay */}
+      <aside
+        className={`
+          fixed z-50
+          w-[280px] h-screen bg-[#060e20] flex flex-col py-8 px-6
+          transition-transform duration-300 ease-in-out
+          ${isMobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        `}
+      >
+        <button
+          className="absolute top-4 right-4 lg:hidden material-symbols-outlined text-on-surface"
+          onClick={() => setIsMobileNavOpen(false)}
+        >
+          close
+        </button>
         <div className="mb-10 px-2">
           <h1 className="text-xl font-bold tracking-tight text-[#dae2fd]">
             TaskFlow
@@ -75,18 +97,26 @@ export default function Home() {
       </aside>
 
       {/* TopNavBar */}
-      <header className="fixed top-0 right-0 left-[280px] h-16 bg-[#0b1326]/60 backdrop-blur-3xl z-40 flex justify-between items-center px-12">
-        <div className="flex items-center bg-surface-container-lowest px-4 py-2 rounded-full w-96">
-          <span className="material-symbols-outlined text-on-surface-variant text-lg">
-            search
-          </span>
-          <input
-            className="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant/50 w-full"
-            placeholder="Search tasks, project files..."
-            type="text"
-          />
+      <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-[#0b1326]/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
+        <div className="flex items-center gap-3">
+          <button
+            className="lg:hidden material-symbols-outlined text-on-surface"
+            onClick={() => setIsMobileNavOpen(true)}
+          >
+            menu
+          </button>
+          <div className="hidden lg:flex items-center bg-surface-container-lowest px-4 py-2 rounded-full w-96">
+            <span className="material-symbols-outlined text-on-surface-variant text-lg">
+              search
+            </span>
+            <input
+              className="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant/50 w-full"
+              placeholder="Search tasks, project files..."
+              type="text"
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 lg:gap-8">
           <div className="flex items-center gap-6">
             <a
               className="text-sm font-medium text-[#ccc3d8] hover:text-[#dae2fd] transition-opacity"
@@ -110,11 +140,11 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="ml-[280px] pt-24 px-12 pb-12">
+      <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
         {/* Header Section */}
-        <section className="mb-12 flex justify-between items-end">
+        <section className="mb-8 lg:mb-12 flex justify-between items-end">
           <div className="max-w-2xl">
-            <h2 className="text-[3.5rem] font-bold tracking-tighter leading-tight text-on-surface mb-4">
+            <h2 className="text-3xl lg:text-[3.5rem] font-bold tracking-tighter leading-tight text-on-surface mb-4">
               Focus.
             </h2>
             <p className="text-on-surface-variant text-lg max-w-lg leading-relaxed">
