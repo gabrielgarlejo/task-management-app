@@ -25,12 +25,6 @@ const statusStyles: Record<TaskStatus, string> = {
 export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleStatusChange = async (status: TaskStatus) => {
-    setIsUpdating(true);
-    await onUpdate(task.id, { status });
-    setIsUpdating(false);
-  };
-
   const handlePriorityChange = async (priority: TaskPriority) => {
     setIsUpdating(true);
     await onUpdate(task.id, { priority });
@@ -81,16 +75,11 @@ export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
       </div>
 
       <div className="flex justify-center">
-        <select
-          value={task.status}
-          onChange={(e) => handleStatusChange(e.target.value as TaskStatus)}
-          disabled={isUpdating}
-          className={`px-4 py-1.5 rounded-full text-[11px] font-semibold border-none cursor-pointer focus:ring-2 focus:ring-primary ${statusStyles[task.status]}`}
+        <span
+          className={`px-4 py-1.5 rounded-full text-[11px] font-semibold ${statusStyles[task.status]}`}
         >
-          <option value="todo">Todo</option>
-          <option value="in_progress">In Progress</option>
-          <option value="done">Done</option>
-        </select>
+          {task.status === 'in_progress' ? 'In Progress' : task.status === 'done' ? 'Done' : 'Todo'}
+        </span>
       </div>
 
       <div>
