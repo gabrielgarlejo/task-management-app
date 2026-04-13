@@ -1,6 +1,6 @@
 "use client";
 
-import { Task, TaskFormData } from "@/types/task";
+import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
 import { useState, useEffect, useCallback } from "react";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
@@ -71,10 +71,10 @@ export function TaskList({
     }
   };
 
-  const handleUpdate = async (id: string, data: Partial<Task>) => {
+  const handleUpdate = async (id: string, data: Partial<TaskFormData>) => {
     try {
       const res = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
@@ -111,11 +111,11 @@ export function TaskList({
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (formData: TaskFormData) => {
+  const handleFormSubmit = async (formData: PartialTaskFormData | TaskFormData) => {
     if (editingTask) {
       await handleUpdate(editingTask.id, formData);
     } else {
-      await handleCreate(formData);
+      await handleCreate(formData as TaskFormData);
     }
     setEditingTask(null);
   };

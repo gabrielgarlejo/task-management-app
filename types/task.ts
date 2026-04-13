@@ -14,8 +14,13 @@ export interface Task {
 
 export interface TaskFormData {
   title: string;
-  description: string;
+  description: string | null;
   status: TaskStatus;
   priority: TaskPriority;
-  due_date: string;
+  due_date: string | null;
 }
+
+export type PartialTaskFormData = Partial<Omit<TaskFormData, 'status' | 'priority'>> & {
+  status?: TaskStatus;
+  priority?: TaskPriority;
+};

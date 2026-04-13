@@ -1,12 +1,12 @@
 'use client';
 
-import { Task, TaskFormData } from '@/types/task';
-import { useState } from 'react';
+import { Task, TaskFormData, PartialTaskFormData } from '@/types/task';
+import { useState, useEffect } from 'react';
 
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: TaskFormData) => void;
+  onSubmit: (data: Partial<TaskFormData>) => void;
   editTask?: Task | null;
 }
 
@@ -31,27 +31,80 @@ function getInitialFormData(editTask: Task | null | undefined): TaskFormData {
   return defaultFormData;
 }
 
+function buildChangedFields(
+  formData: TaskFormData,
+  original: TaskFormData,
+  isNewTask: boolean,
+): Partial<TaskFormData> {
+  const changed: Partial<TaskFormData> = {};
+
+  if (isNewTask) {
+    if (formData.title.trim()) changed.title = formData.title;
+    if (formData.description) changed.description = formData.description || null;
+    changed.status = formData.status;
+    changed.priority = formData.priority;
+    if (formData.due_date) {
+      changed.due_date = new Date(formData.due_date).toISOString();
+    } else {
+      changed.due_date = '';
+    }
+    return changed;
+  }
+
+  if (formData.title !== original.title) {
+    changed.title = formData.title;
+  }
+  if (formData.description !== original.description) {
+    changed.description = formData.description || null;
+  }
+  if (formData.status !== original.status) {
+    changed.status = formData.status;
+  }
+  if (formData.priority !== original.priority) {
+    changed.priority = formData.priority;
+  }
+  if (formData.due_date !== original.due_date) {
+    changed.due_date = formData.due_date
+      ? new Date(formData.due_date).toISOString()
+      : '';
+  }
+
+  return changed;
+}
+
 export function TaskForm({ isOpen, onClose, onSubmit, editTask }: TaskFormProps) {
   const [formData, setFormData] = useState<TaskFormData>(getInitialFormData(editTask));
+  const [originalData, setOriginalData] = useState<TaskFormData>(getInitialFormData(editTask));
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isNewTask = !editTask;
+
+  useEffect(() => {
+    if (isOpen) {
+      const initial = getInitialFormData(editTask);
+      setFormData(initial);
+      setOriginalData(initial);
+    }
+  }, [isOpen, editTask]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) return;
+
+    if (isNewTask && !formData.title.trim()) {
+      return;
+    }
 
     setIsSubmitting(true);
-    await onSubmit({
-      ...formData,
-      due_date: formData.due_date ? new Date(formData.due_date).toISOString() : '',
-    });
+    const changedFields = buildChangedFields(formData, originalData, isNewTask);
+    await onSubmit(changedFields);
     setIsSubmitting(false);
     onClose();
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -91,7 +144,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, editTask }: TaskFormProps)
               name="title"
               value={formData.title}
               onChange={handleChange}
-              required
+              required={isNewTask}
               className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary"
               placeholder="Enter task title"
             />
@@ -103,11 +156,11 @@ export function TaskForm({ isOpen, onClose, onSubmit, editTask }: TaskFormProps)
             </label>
             <textarea
               name="description"
-              value={formData.description}
+              value={formData.description ?? ''}
               onChange={handleChange}
               rows={3}
               className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface placeholder:text-on-surface-variant/50 focus:ring-2 focus:ring-primary resize-none"
-              placeholder="Enter task description"
+              placeholder="Enter task description (optional)"
             />
           </div>
 
@@ -152,7 +205,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, editTask }: TaskFormProps)
             <input
               type="date"
               name="due_date"
-              value={formData.due_date}
+              value={formData.due_date ?? ''}
               onChange={handleChange}
               className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary cursor-pointer"
             />
