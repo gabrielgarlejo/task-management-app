@@ -57,9 +57,6 @@ function buildChangedFields(
   if (formData.description !== original.description) {
     changed.description = formData.description || null;
   }
-  if (formData.status !== original.status) {
-    changed.status = formData.status;
-  }
   if (formData.priority !== original.priority) {
     changed.priority = formData.priority;
   }
@@ -164,7 +161,7 @@ export function TaskForm({ isOpen, onClose, onSubmit, editTask }: TaskFormProps)
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 mb-2">
                 Priority
@@ -178,22 +175,6 @@ export function TaskForm({ isOpen, onClose, onSubmit, editTask }: TaskFormProps)
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 mb-2">
-                Status
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full bg-surface-container-low border-none rounded-xl px-4 py-3 text-on-surface focus:ring-2 focus:ring-primary cursor-pointer"
-              >
-                <option value="todo">Todo</option>
-                <option value="in_progress">In Progress</option>
-                <option value="done">Done</option>
               </select>
             </div>
           </div>
