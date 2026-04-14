@@ -1,10 +1,10 @@
 "use client";
 
 import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
-import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
+import { useTasks } from "@/hooks/useTasks";
 
 interface TaskListProps {
   externalFormOpen?: boolean;
@@ -15,134 +15,35 @@ export function TaskList({
   externalFormOpen,
   onExternalFormClose,
 }: TaskListProps) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const { tasks, createTask, updateTask, deleteTask, isLoading, error, fetchTasks } = useTasks({
+    channelName: "tasks-changes-list",
+  });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch("/api/tasks");
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setTasks(data.tasks || []);
-      }
-    } catch {
-      setError("Failed to fetch tasks");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("tasks-changes-list")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "tasks",
-        },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setTasks((prev) => {
-              if (prev.some((t) => t.id === (payload.new as Task).id)) {
-                return prev;
-              }
-              return [payload.new as Task, ...prev];
-            });
-          } else if (payload.eventType === "UPDATE") {
-            setTasks((prev) =>
-              prev.map((t) =>
-                t.id === payload.new.id
-                  ? { ...t, ...(payload.new as Task) }
-                  : t,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  useEffect(() => {
+  useState(() => {
     if (externalFormOpen) {
       setIsFormOpen(true);
     }
-  }, [externalFormOpen]);
+  });
 
-  useEffect(() => {
+  useState(() => {
     if (!isFormOpen && onExternalFormClose) {
       onExternalFormClose();
     }
-  }, [isFormOpen, onExternalFormClose]);
+  });
 
   const handleCreate = async (formData: TaskFormData) => {
-    try {
-      const res = await fetch("/api/tasks", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setTasks((prev) => [data.task, ...prev]);
-      }
-    } catch {
-      setError("Failed to create task");
-    }
+    await createTask(formData);
   };
 
-  const handleUpdate = async (id: string, data: Partial<TaskFormData>) => {
-    try {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const result = await res.json();
-      if (result.error) {
-        setError(result.error);
-      } else {
-        setTasks((prev) => prev.map((t) => (t.id === id ? result.task : t)));
-      }
-    } catch {
-      setError("Failed to update task");
-    }
+  const handleUpdate = async (id: string, data: PartialTaskFormData) => {
+    await updateTask(id, data);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this task?")) return;
-    try {
-      const res = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setTasks((prev) => prev.filter((t) => t.id !== id));
-      }
-    } catch {
-      setError("Failed to delete task");
-    }
+    await deleteTask(id);
   };
 
   const handleEdit = (task: Task) => {
@@ -165,8 +66,6 @@ export function TaskList({
     setIsFormOpen(false);
     setEditingTask(null);
   };
-
-  const filteredTasks = tasks;
 
   return (
     <div className="space-y-4">
@@ -194,12 +93,12 @@ export function TaskList({
         </div>
       ) : error ? (
         <div className="text-center py-12 text-error">{error}</div>
-      ) : filteredTasks.length === 0 ? (
+      ) : tasks.length === 0 ? (
         <div className="text-center py-12 text-on-surface-variant">
           No tasks found
         </div>
       ) : (
-        filteredTasks.map((task) => (
+        tasks.map((task) => (
           <TaskItem
             key={task.id}
             task={task}
