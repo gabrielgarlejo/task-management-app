@@ -1,6 +1,6 @@
 "use client";
 
-import { TaskStatus } from "@/types/task";
+import { Task, TaskStatus } from "@/types/task";
 import { useState } from "react";
 import { useSensors, useSensor } from "@dnd-kit/core";
 import {
@@ -40,7 +40,7 @@ export function KanbanBoard() {
   const { groupedTasks, updateTaskStatus, isLoading, error } = useTasks({
     channelName: "tasks-changes",
   });
-  const [activeTask, setActiveTask] = useState<{ id: string; task: any } | null>(null);
+  const [activeTask, setActiveTask] = useState<{ id: string; task: Task } | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
