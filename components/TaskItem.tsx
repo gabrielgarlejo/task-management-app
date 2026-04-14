@@ -20,6 +20,7 @@ const statusStyles: Record<TaskStatus, string> = {
   todo: "bg-surface-container-highest text-on-surface-variant",
   in_progress: "bg-secondary-container text-on-secondary-container",
   done: "bg-primary/20 text-primary",
+  overdue: "bg-error-container/30 text-error",
 };
 
 export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
@@ -86,7 +87,9 @@ export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
               ? "In Progress"
               : task.status === "done"
                 ? "Done"
-                : "Todo"}
+                : task.status === "overdue"
+                  ? "Overdue"
+                  : "Todo"}
           </span>
         </div>
 
@@ -159,7 +162,9 @@ export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
               ? "In Progress"
               : task.status === "done"
                 ? "Done"
-                : "Todo"}
+                : task.status === "overdue"
+                  ? "Overdue"
+                  : "Todo"}
           </span>
           <span className="text-xs text-on-surface-variant self-center">
             {formatDate(task.due_date)}

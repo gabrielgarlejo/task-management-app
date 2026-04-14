@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabase-server";
 const TaskCreateSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  status: z.enum(["todo", "in_progress", "done"]).default("todo"),
+  status: z.enum(["todo", "in_progress", "done", "overdue"]).default("todo"),
   priority: z.enum(["low", "medium", "high"]).default("medium"),
   due_date: z.string().datetime().optional().nullable().or(z.literal("")),
 });

@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { TaskList } from "@/components/TaskList";
+import { KanbanBoard } from "@/components/KanbanBoard";
 
 export default function Home() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -65,13 +67,17 @@ export default function Home() {
             <span className="material-symbols-outlined">assignment</span>
             <span className="text-[13px] font-medium">Tasks</span>
           </a>
-          <a
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
-            href="#"
+          <button
+            onClick={() => setViewMode("kanban")}
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd] ${
+              viewMode === "kanban"
+                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
+                : ""
+            }`}
           >
             <span className="material-symbols-outlined">view_kanban</span>
             <span className="text-[13px] font-medium">Kanban</span>
-          </a>
+          </button>
           <a
             className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
             href="#"
@@ -153,11 +159,14 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
-        {/* Task List */}
-        <TaskList
-          externalFormOpen={isFormOpen}
-          onExternalFormClose={() => setIsFormOpen(false)}
-        />
+        {viewMode === "list" ? (
+          <TaskList
+            externalFormOpen={isFormOpen}
+            onExternalFormClose={() => setIsFormOpen(false)}
+          />
+        ) : (
+          <KanbanBoard />
+        )}
       </main>
     </>
   );
