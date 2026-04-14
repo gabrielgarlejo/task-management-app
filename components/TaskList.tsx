@@ -54,7 +54,12 @@ export function TaskList({
         },
         (payload) => {
           if (payload.eventType === "INSERT") {
-            setTasks((prev) => [payload.new as Task, ...prev]);
+            setTasks((prev) => {
+              if (prev.some((t) => t.id === (payload.new as Task).id)) {
+                return prev;
+              }
+              return [payload.new as Task, ...prev];
+            });
           } else if (payload.eventType === "UPDATE") {
             setTasks((prev) =>
               prev.map((t) =>
