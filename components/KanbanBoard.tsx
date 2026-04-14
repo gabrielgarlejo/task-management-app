@@ -2,6 +2,7 @@
 
 import { Task, TaskStatus } from "@/types/task";
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 import {
   DndContext,
   DragOverlay,
@@ -25,9 +26,21 @@ interface GroupedTasks {
 }
 
 const columnConfig = [
-  { title: "Todo", status: "todo" as TaskStatus, colorDot: "bg-primary-fixed-dim" },
-  { title: "In Progress", status: "in_progress" as TaskStatus, colorDot: "bg-secondary" },
-  { title: "Done", status: "done" as TaskStatus, colorDot: "bg-on-tertiary-container" },
+  {
+    title: "Todo",
+    status: "todo" as TaskStatus,
+    colorDot: "bg-primary-fixed-dim",
+  },
+  {
+    title: "In Progress",
+    status: "in_progress" as TaskStatus,
+    colorDot: "bg-secondary",
+  },
+  {
+    title: "Done",
+    status: "done" as TaskStatus,
+    colorDot: "bg-on-tertiary-container",
+  },
   { title: "Overdue", status: "overdue" as TaskStatus, colorDot: "bg-error" },
 ];
 
@@ -45,7 +58,7 @@ export function KanbanBoard() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const fetchTasks = useCallback(async () => {
@@ -68,6 +81,39 @@ export function KanbanBoard() {
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("tasks-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setTasks((prev) => [payload.new as Task, ...prev]);
+          } else if (payload.eventType === "UPDATE") {
+            setTasks((prev) =>
+              prev.map((t) =>
+                t.id === payload.new.id
+                  ? { ...t, ...(payload.new as Task) }
+                  : t,
+              ),
+            );
+          } else if (payload.eventType === "DELETE") {
+            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const groupedTasks: GroupedTasks = {
     todo: tasks.filter((t) => t.status === "todo"),
@@ -113,7 +159,9 @@ export function KanbanBoard() {
 
     // Optimistic update - update state immediately
     setTasks((prev) =>
-      prev.map((t) => (t.id === activeId ? { ...t, status: overContainer! } : t))
+      prev.map((t) =>
+        t.id === activeId ? { ...t, status: overContainer! } : t,
+      ),
     );
 
     // Then make API call in background
@@ -128,14 +176,18 @@ export function KanbanBoard() {
         setError(data.error);
         // Revert on error
         setTasks((prev) =>
-          prev.map((t) => (t.id === activeId ? { ...t, status: activeContainer } : t))
+          prev.map((t) =>
+            t.id === activeId ? { ...t, status: activeContainer } : t,
+          ),
         );
       }
     } catch {
       setError("Failed to update task status");
       // Revert on error
       setTasks((prev) =>
-        prev.map((t) => (t.id === activeId ? { ...t, status: activeContainer } : t))
+        prev.map((t) =>
+          t.id === activeId ? { ...t, status: activeContainer } : t,
+        ),
       );
     }
   };
