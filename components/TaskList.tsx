@@ -2,6 +2,7 @@
 
 import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
 
@@ -40,6 +41,44 @@ export function TaskList({
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("tasks-changes-list")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setTasks((prev) => {
+              if (prev.some((t) => t.id === (payload.new as Task).id)) {
+                return prev;
+              }
+              return [payload.new as Task, ...prev];
+            });
+          } else if (payload.eventType === "UPDATE") {
+            setTasks((prev) =>
+              prev.map((t) =>
+                t.id === payload.new.id
+                  ? { ...t, ...(payload.new as Task) }
+                  : t,
+              ),
+            );
+          } else if (payload.eventType === "DELETE") {
+            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   useEffect(() => {
     if (externalFormOpen) {
@@ -111,7 +150,9 @@ export function TaskList({
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (formData: PartialTaskFormData | TaskFormData) => {
+  const handleFormSubmit = async (
+    formData: PartialTaskFormData | TaskFormData,
+  ) => {
     if (editingTask) {
       await handleUpdate(editingTask.id, formData);
     } else {
@@ -170,6 +211,7 @@ export function TaskList({
       )}
 
       <TaskForm
+        key={editingTask ? editingTask.id : "new"}
         isOpen={isFormOpen}
         onClose={handleFormClose}
         onSubmit={handleFormSubmit}

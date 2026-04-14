@@ -5,9 +5,9 @@ import { supabaseServer } from "@/lib/supabase-server";
 const TaskUpdateSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().optional(),
-  status: z.enum(["todo", "in_progress", "done"]).optional(),
+  status: z.enum(["todo", "in_progress", "done", "overdue"]).optional(),
   priority: z.enum(["low", "medium", "high"]).optional(),
-  due_date: z.string().datetime().optional().nullable(),
+  due_date: z.string().datetime().optional().nullable().or(z.literal("")),
 });
 
 export async function PUT(
