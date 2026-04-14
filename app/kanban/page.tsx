@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { TaskList } from "@/components/TaskList";
+import { KanbanBoard } from "@/components/KanbanBoard";
 
-export default function Home() {
+export default function KanbanPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -18,7 +17,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Mobile Nav Overlay */}
       {isMobileNavOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -26,7 +24,6 @@ export default function Home() {
         />
       )}
 
-      {/* SideNavBar - hidden on mobile, shown as slide-out overlay */}
       <aside
         className={`
           fixed z-50
@@ -52,27 +49,24 @@ export default function Home() {
           </p>
         </div>
         <nav className="flex-1 space-y-2">
-          <Link
+          <a
             className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
             href="/"
           >
             <span className="material-symbols-outlined">dashboard</span>
             <span className="text-[13px] font-medium">Dashboard</span>
-          </Link>
-          <Link
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
+          </a>
+          <a
+            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
             href="/"
           >
             <span className="material-symbols-outlined">assignment</span>
             <span className="text-[13px] font-medium">Tasks</span>
-          </Link>
-          <Link
-            href="/kanban"
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
-          >
+          </a>
+          <div className="flex items-center gap-4 px-4 py-3 rounded-xl text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent">
             <span className="material-symbols-outlined">view_kanban</span>
             <span className="text-[13px] font-medium">Kanban</span>
-          </Link>
+          </div>
           <a
             className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
             href="#"
@@ -107,7 +101,6 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* TopNavBar */}
       <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-[#0b1326]/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
         <div className="flex items-center gap-3">
           {isMobile && (
@@ -152,12 +145,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
-        <TaskList
-          externalFormOpen={isFormOpen}
-          onExternalFormClose={() => setIsFormOpen(false)}
-        />
+        <KanbanBoard />
       </main>
     </>
   );
