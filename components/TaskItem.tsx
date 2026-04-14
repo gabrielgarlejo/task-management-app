@@ -1,7 +1,7 @@
 "use client";
 
 import { Task, TaskPriority, TaskStatus } from "@/types/task";
-import { useState } from "react";
+import { useState, memo } from "react";
 
 interface TaskItemProps {
   task: Task;
@@ -23,7 +23,7 @@ const statusStyles: Record<TaskStatus, string> = {
   overdue: "bg-error-container/30 text-error",
 };
 
-export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
+function TaskItemComponent({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handlePriorityChange = async (priority: TaskPriority) => {
@@ -174,3 +174,5 @@ export function TaskItem({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
     </div>
   );
 }
+
+export const TaskItem = memo(TaskItemComponent);
