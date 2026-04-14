@@ -111,7 +111,9 @@ export function TaskList({
     setIsFormOpen(true);
   };
 
-  const handleFormSubmit = async (formData: PartialTaskFormData | TaskFormData) => {
+  const handleFormSubmit = async (
+    formData: PartialTaskFormData | TaskFormData,
+  ) => {
     if (editingTask) {
       await handleUpdate(editingTask.id, formData);
     } else {
@@ -170,6 +172,7 @@ export function TaskList({
       )}
 
       <TaskForm
+        key={editingTask ? editingTask.id : "new"}
         isOpen={isFormOpen}
         onClose={handleFormClose}
         onSubmit={handleFormSubmit}

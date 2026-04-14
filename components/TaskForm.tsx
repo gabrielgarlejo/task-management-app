@@ -47,7 +47,7 @@ function buildChangedFields(
     if (formData.due_date) {
       changed.due_date = new Date(formData.due_date).toISOString();
     } else {
-      changed.due_date = "";
+      changed.due_date = null;
     }
     return changed;
   }
@@ -64,7 +64,7 @@ function buildChangedFields(
   if (formData.due_date !== original.due_date) {
     changed.due_date = formData.due_date
       ? new Date(formData.due_date).toISOString()
-      : "";
+      : null;
   }
 
   return changed;
@@ -82,7 +82,9 @@ export function TaskForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isNewTask = !editTask;
-  const originalData = isNewTask ? defaultFormData : getInitialFormData(editTask);
+  const originalData = isNewTask
+    ? defaultFormData
+    : getInitialFormData(editTask);
 
   if (!isOpen) return null;
 

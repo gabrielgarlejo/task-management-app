@@ -7,7 +7,7 @@ const TaskUpdateSchema = z.object({
   description: z.string().optional(),
   status: z.enum(["todo", "in_progress", "done"]).optional(),
   priority: z.enum(["low", "medium", "high"]).optional(),
-  due_date: z.string().datetime().optional().nullable(),
+  due_date: z.string().datetime().optional().nullable().or(z.literal("")),
 });
 
 export async function PUT(
