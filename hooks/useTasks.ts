@@ -1,7 +1,7 @@
 "use client";
 
 import { Task, TaskFormData, PartialTaskFormData, TaskStatus } from "@/types/task";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 
 interface UseTasksOptions {
@@ -171,12 +171,15 @@ export function useTasks(options: UseTasksOptions = {}) {
     }
   };
 
-  const groupedTasks: Record<TaskStatus, Task[]> = {
-    todo: tasks.filter((t) => t.status === "todo"),
-    in_progress: tasks.filter((t) => t.status === "in_progress"),
-    done: tasks.filter((t) => t.status === "done"),
-    overdue: tasks.filter((t) => t.status === "overdue"),
-  };
+  const groupedTasks = useMemo(
+    () => ({
+      todo: tasks.filter((t) => t.status === "todo"),
+      in_progress: tasks.filter((t) => t.status === "in_progress"),
+      done: tasks.filter((t) => t.status === "done"),
+      overdue: tasks.filter((t) => t.status === "overdue"),
+    }),
+    [tasks],
+  );
 
   return {
     tasks,

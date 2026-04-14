@@ -15,23 +15,26 @@ export function TaskList({
   externalFormOpen,
   onExternalFormClose,
 }: TaskListProps) {
-  const { tasks, createTask, updateTask, deleteTask, isLoading, error, fetchTasks } = useTasks({
+  const { tasks, createTask, updateTask, deleteTask, isLoading, error } = useTasks({
     channelName: "tasks-changes-list",
   });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [internalFormOpen, setInternalFormOpen] = useState(false);
 
-  useState(() => {
-    if (externalFormOpen) {
-      setIsFormOpen(true);
-    }
-  });
+  const isFormOpen = externalFormOpen || internalFormOpen;
 
-  useState(() => {
-    if (!isFormOpen && onExternalFormClose) {
+  const handleFormClose = () => {
+    setInternalFormOpen(false);
+    setEditingTask(null);
+    if (externalFormOpen && onExternalFormClose) {
       onExternalFormClose();
     }
-  });
+  };
+
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+    setInternalFormOpen(true);
+  };
 
   const handleCreate = async (formData: TaskFormData) => {
     await createTask(formData);
@@ -46,11 +49,6 @@ export function TaskList({
     await deleteTask(id);
   };
 
-  const handleEdit = (task: Task) => {
-    setEditingTask(task);
-    setIsFormOpen(true);
-  };
-
   const handleFormSubmit = async (
     formData: PartialTaskFormData | TaskFormData,
   ) => {
@@ -59,11 +57,6 @@ export function TaskList({
     } else {
       await handleCreate(formData as TaskFormData);
     }
-    setEditingTask(null);
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
     setEditingTask(null);
   };
 
