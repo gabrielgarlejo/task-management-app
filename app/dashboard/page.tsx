@@ -1,16 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { useTasks } from "@/hooks/useTasks";
 import { Task } from "@/types/task";
 import Link from "next/link";
+import { TaskDetailsModal } from "@/components/TaskDetailsModal";
 
-function TaskCard({ task }: { task: Task }) {
+function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
   return (
-    <Link
-      href="/"
-      className="block bg-surface-container-low hover:bg-surface-container-high px-4 py-3 rounded-xl transition-colors"
+    <button
+      onClick={onClick}
+      className="block text-left w-full bg-surface-container-low hover:bg-surface-container-high px-4 py-3 rounded-xl transition-colors"
     >
       <span className="text-sm font-medium text-on-surface line-clamp-1">
         {task.title}
@@ -23,7 +25,7 @@ function TaskCard({ task }: { task: Task }) {
             })
           : "No due date"}
       </span>
-    </Link>
+    </button>
   );
 }
 
@@ -57,7 +59,8 @@ function StatCard({
 }
 
 export default function DashboardPage() {
-  const { tasks, isLoading, groupedTasks } = useTasks();
+  const { tasks, isLoading, groupedTasks, updateTask, deleteTask } = useTasks();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const dashboardData = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
@@ -79,11 +82,7 @@ export default function DashboardPage() {
         dueToday.push(task);
       }
 
-      if (
-        task.status !== "done" &&
-        task.status !== "overdue" &&
-        dueDate < today
-      ) {
+      if (task.status === "overdue" || (task.status !== "done" && dueDate < today)) {
         overdue.push(task);
       }
     }
@@ -161,7 +160,7 @@ export default function DashboardPage() {
                 </p>
               ) : (
                 dashboardData.dueToday.map((task) => (
-                  <TaskCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
                 ))
               )}
             </div>
@@ -181,7 +180,7 @@ export default function DashboardPage() {
                 </p>
               ) : (
                 dashboardData.overdue.map((task) => (
-                  <TaskCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
                 ))
               )}
             </div>
@@ -204,7 +203,7 @@ export default function DashboardPage() {
               ) : (
                 dashboardData.completed
                   .slice(0, 5)
-                  .map((task) => <TaskCard key={task.id} task={task} />)
+                  .map((task) => <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />)
               )}
             </div>
           </section>
@@ -225,13 +224,22 @@ export default function DashboardPage() {
                 </p>
               ) : (
                 dashboardData.recent.map((task) => (
-                  <TaskCard key={task.id} task={task} />
+                  <TaskCard key={task.id} task={task} onClick={() => setSelectedTask(task)} />
                 ))
               )}
             </div>
           </section>
         </div>
       </div>
+
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onEdit={(task) => updateTask(task.id, task)}
+          onDelete={(id) => deleteTask(id)}
+        />
+      )}
     </AppLayout>
   );
 }
