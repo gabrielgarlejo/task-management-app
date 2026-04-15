@@ -18,7 +18,7 @@ import { KanbanTaskCard } from "./KanbanTaskCard";
 import { TaskDetailsModal } from "./TaskDetailsModal";
 import { TaskForm } from "./TaskForm";
 import { useTasks } from "@/hooks/useTasks";
-import { TaskFormData, PartialTaskFormData } from "@/types/task";
+import { PartialTaskFormData } from "@/types/task";
 
 const columnConfig = [
   {
