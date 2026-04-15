@@ -1,6 +1,7 @@
 "use client";
 
-import { Task, TaskPriority, TaskStatus } from "@/types/task";
+import { Task } from "@/types/task";
+import { PRIORITY_STYLES, STATUS_STYLES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/styles";
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -8,32 +9,6 @@ interface TaskDetailsModalProps {
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
 }
-
-const priorityStyles: Record<TaskPriority, string> = {
-  high: "bg-tertiary-container text-on-tertiary-container",
-  medium: "bg-surface-container-highest text-on-surface-variant",
-  low: "bg-surface-container-highest text-on-surface-variant/40",
-};
-
-const statusStyles: Record<TaskStatus, string> = {
-  todo: "bg-surface-container-highest text-on-surface-variant",
-  in_progress: "bg-secondary-container text-on-secondary-container",
-  done: "bg-primary/20 text-primary",
-  overdue: "bg-error-container/30 text-error",
-};
-
-const statusLabels: Record<TaskStatus, string> = {
-  todo: "Todo",
-  in_progress: "In Progress",
-  done: "Done",
-  overdue: "Overdue",
-};
-
-const priorityLabels: Record<TaskPriority, string> = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-};
 
 export function TaskDetailsModal({
   task,
@@ -87,14 +62,14 @@ export function TaskDetailsModal({
         <div className="space-y-6">
           <div className="flex flex-wrap gap-2">
             <span
-              className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${priorityStyles[task.priority]}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${PRIORITY_STYLES[task.priority]}`}
             >
-              {priorityLabels[task.priority]} Priority
+              {PRIORITY_LABELS[task.priority]} Priority
             </span>
             <span
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold ${statusStyles[task.status]}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold ${STATUS_STYLES[task.status]}`}
             >
-              {statusLabels[task.status]}
+              {STATUS_LABELS[task.status]}
             </span>
           </div>
 
@@ -121,7 +96,7 @@ export function TaskDetailsModal({
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 mb-1">
                 Status
               </h4>
-              <p className="text-on-surface font-medium">{statusLabels[task.status]}</p>
+              <p className="text-on-surface font-medium">{STATUS_LABELS[task.status]}</p>
             </div>
 
             <div className="bg-surface-container-low rounded-xl p-4">
