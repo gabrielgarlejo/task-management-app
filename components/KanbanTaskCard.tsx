@@ -6,6 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 interface KanbanTaskCardProps {
   task: Task;
+  onClick?: (task: Task) => void;
 }
 
 const priorityStyles: Record<TaskPriority, string> = {
@@ -20,7 +21,7 @@ const priorityLabels: Record<TaskPriority, string> = {
   low: "Low",
 };
 
-export function KanbanTaskCard({ task }: KanbanTaskCardProps) {
+export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -72,6 +73,10 @@ export function KanbanTaskCard({ task }: KanbanTaskCardProps) {
       className={`bg-surface-container-low p-5 rounded-xl border border-transparent hover:border-outline-variant/30 transition-all group cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-50" : ""
       } ${isDone ? "opacity-60 grayscale-[0.3]" : ""}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(task);
+      }}
     >
       <div className="flex justify-between items-start mb-3">
         <span

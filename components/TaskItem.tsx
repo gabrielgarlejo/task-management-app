@@ -8,6 +8,7 @@ interface TaskItemProps {
   onUpdate: (id: string, data: Partial<Task>) => void;
   onDelete: (id: string) => void;
   onEdit: (task: Task) => void;
+  onClick?: (task: Task) => void;
 }
 
 const priorityStyles: Record<TaskPriority, string> = {
@@ -23,7 +24,7 @@ const statusStyles: Record<TaskStatus, string> = {
   overdue: "bg-error-container/30 text-error",
 };
 
-function TaskItemComponent({ task, onUpdate, onDelete, onEdit }: TaskItemProps) {
+function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handlePriorityChange = async (priority: TaskPriority) => {
@@ -45,9 +46,10 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit }: TaskItemProps) 
 
   return (
     <div
-      className={`group bg-surface-container-low hover:bg-surface-container-high px-4 lg:px-8 py-4 lg:py-6 rounded-2xl ease-[cubic-bezier(0.4,0,0.2,1)] ${
+      className={`group bg-surface-container-low hover:bg-surface-container-high px-4 lg:px-8 py-4 lg:py-6 rounded-2xl ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer ${
         isDone ? "opacity-70" : ""
       }`}
+      onClick={() => onClick?.(task)}
     >
       {/* Desktop: Table row layout */}
       <div className="hidden lg:grid grid-cols-[1fr_120px_140px_140px_100px] gap-8 items-center">

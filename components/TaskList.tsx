@@ -4,6 +4,7 @@ import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
 import { useState } from "react";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
+import { TaskDetailsModal } from "./TaskDetailsModal";
 import { useTasks } from "@/hooks/useTasks";
 
 interface TaskListProps {
@@ -20,6 +21,7 @@ export function TaskList({
   });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [internalFormOpen, setInternalFormOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const isFormOpen = externalFormOpen || internalFormOpen;
 
@@ -98,6 +100,7 @@ export function TaskList({
             onUpdate={handleUpdate}
             onDelete={handleDelete}
             onEdit={handleEdit}
+            onClick={setSelectedTask}
           />
         ))
       )}
@@ -109,6 +112,15 @@ export function TaskList({
         onSubmit={handleFormSubmit}
         editTask={editingTask}
       />
+
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

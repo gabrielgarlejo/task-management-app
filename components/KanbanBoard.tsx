@@ -15,7 +15,10 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanTaskCard } from "./KanbanTaskCard";
+import { TaskDetailsModal } from "./TaskDetailsModal";
+import { TaskForm } from "./TaskForm";
 import { useTasks } from "@/hooks/useTasks";
+import { TaskFormData, PartialTaskFormData } from "@/types/task";
 
 const columnConfig = [
   {
@@ -37,10 +40,13 @@ const columnConfig = [
 ];
 
 export function KanbanBoard() {
-  const { groupedTasks, updateTaskStatus, isLoading, error } = useTasks({
+  const { groupedTasks, updateTaskStatus, isLoading, error, deleteTask, updateTask } = useTasks({
     channelName: "tasks-changes",
   });
   const [activeTask, setActiveTask] = useState<{ id: string; task: Task } | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -109,30 +115,64 @@ export function KanbanBoard() {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex gap-8 h-[calc(100vh-280px)] kanban-scroll overflow-x-auto">
-        {columnConfig.map((col) => (
-          <KanbanColumn
-            key={col.status}
-            title={col.title}
-            colorDot={col.colorDot}
-            tasks={groupedTasks[col.status] || []}
-            status={col.status}
-          />
-        ))}
-      </div>
-      <DragOverlay>
-        {activeTask ? (
-          <div className="rotate-3 opacity-90">
-            <KanbanTaskCard task={activeTask.task} />
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex gap-8 h-[calc(100vh-280px)] kanban-scroll overflow-x-auto">
+          {columnConfig.map((col) => (
+            <KanbanColumn
+              key={col.status}
+              title={col.title}
+              colorDot={col.colorDot}
+              tasks={groupedTasks[col.status] || []}
+              status={col.status}
+              onTaskClick={setSelectedTask}
+            />
+          ))}
+        </div>
+        <DragOverlay>
+          {activeTask ? (
+            <div className="rotate-3 opacity-90">
+              <KanbanTaskCard task={activeTask.task} />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onEdit={(task) => {
+            setSelectedTask(null);
+            setEditingTask(task);
+            setIsEditing(true);
+          }}
+          onDelete={deleteTask}
+        />
+      )}
+
+      {isEditing && (
+        <TaskForm
+          isOpen={isEditing}
+          onClose={() => {
+            setIsEditing(false);
+            setEditingTask(null);
+          }}
+          onSubmit={async (data) => {
+            if (editingTask) {
+              await updateTask(editingTask.id, data as PartialTaskFormData);
+            }
+            setIsEditing(false);
+            setEditingTask(null);
+          }}
+          editTask={editingTask}
+        />
+      )}
+    </>
   );
 }
