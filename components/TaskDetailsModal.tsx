@@ -2,6 +2,7 @@
 
 import { Task } from "@/types/task";
 import { PRIORITY_STYLES, STATUS_STYLES, PRIORITY_LABELS, STATUS_LABELS } from "@/lib/styles";
+import { formatDateLong, formatDateTime } from "@/lib/date";
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -16,25 +17,6 @@ export function TaskDetailsModal({
   onEdit,
   onDelete,
 }: TaskDetailsModalProps) {
-  const formatDate = (date: string | null) => {
-    if (!date) return "No due date";
-    return new Date(date).toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
-  const formatDateTime = (date: string) => {
-    return new Date(date).toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
-
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this task?")) {
       onDelete(task.id);
@@ -89,7 +71,7 @@ export function TaskDetailsModal({
               <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/60 mb-1">
                 Due Date
               </h4>
-              <p className="text-on-surface font-medium">{formatDate(task.due_date)}</p>
+              <p className="text-on-surface font-medium">{formatDateLong(task.due_date)}</p>
             </div>
 
             <div className="bg-surface-container-low rounded-xl p-4">

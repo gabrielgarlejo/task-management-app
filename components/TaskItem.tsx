@@ -3,6 +3,7 @@
 import { Task, TaskPriority } from "@/types/task";
 import { useState, memo } from "react";
 import { PRIORITY_STYLES, STATUS_STYLES, PRIORITY_LABELS } from "@/lib/styles";
+import { formatDate } from "@/lib/date";
 
 interface TaskItemProps {
   task: Task;
@@ -11,15 +12,6 @@ interface TaskItemProps {
   onEdit: (task: Task) => void;
   onClick?: (task: Task) => void;
 }
-
-const formatDate = (date: string | null) => {
-  if (!date) return "-";
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
 
 const truncateText = (text: string, maxLength: number) => {
   if (text.length <= maxLength) return text;

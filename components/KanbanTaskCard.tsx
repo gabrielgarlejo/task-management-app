@@ -1,8 +1,9 @@
 "use client";
 
-import { Task, TaskPriority, TaskStatus } from "@/types/task";
+import { Task, TaskPriority } from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { getRelativeDateLabel } from "@/lib/date";
 
 interface KanbanTaskCardProps {
   task: Task;
@@ -43,23 +44,7 @@ export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
   };
 
   const formatDate = (date: string | null) => {
-    if (!date) return "No due date";
-    const d = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(date);
-    dueDate.setHours(0, 0, 0, 0);
-
-    if (dueDate < today && task.status !== "done") {
-      return "Overdue";
-    }
-    if (dueDate.getTime() === today.getTime()) {
-      return "Today";
-    }
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
+    return getRelativeDateLabel(date, task.status);
   };
 
   const isDone = task.status === "done";

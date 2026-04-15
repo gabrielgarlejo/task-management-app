@@ -7,6 +7,7 @@ import { useTasks } from "@/hooks/useTasks";
 import { Task } from "@/types/task";
 import Link from "next/link";
 import { TaskDetailsModal } from "@/components/TaskDetailsModal";
+import { getLocalDateString, formatDate } from "@/lib/date";
 
 function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
   return (
@@ -18,12 +19,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
         {task.title}
       </span>
       <span className="text-xs text-on-surface-variant mt-1 block">
-        {task.due_date
-          ? new Date(task.due_date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            })
-          : "No due date"}
+        {formatDate(task.due_date)}
       </span>
     </button>
   );
@@ -63,7 +59,7 @@ export default function DashboardPage() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const dashboardData = useMemo(() => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateString();
 
     const dueToday: Task[] = [];
     const overdue: Task[] = [];
