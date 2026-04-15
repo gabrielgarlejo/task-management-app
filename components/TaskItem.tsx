@@ -24,6 +24,20 @@ const statusStyles: Record<TaskStatus, string> = {
   overdue: "bg-error-container/30 text-error",
 };
 
+const formatDate = (date: string | null) => {
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + "...";
+};
+
 function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -31,15 +45,6 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
     setIsUpdating(true);
     await onUpdate(task.id, { priority });
     setIsUpdating(false);
-  };
-
-  const formatDate = (date: string | null) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
   };
 
   const isDone = task.status === "done";
@@ -51,7 +56,6 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
       }`}
       onClick={() => onClick?.(task)}
     >
-      {/* Desktop: Table row layout */}
       <div className="hidden lg:grid grid-cols-[1fr_120px_140px_140px_100px] gap-8 items-center">
         <div className="flex flex-col">
           <span
@@ -61,9 +65,11 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
           >
             {task.title}
           </span>
-          <span className="text-xs text-on-surface-variant mt-1">
-            {task.description || "-"}
-          </span>
+          {task.description && (
+            <span className="text-xs text-on-surface-variant/50 mt-1">
+              {truncateText(task.description, 80)}
+            </span>
+          )}
         </div>
 
         <div>
@@ -119,7 +125,6 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
         </div>
       </div>
 
-      {/* Mobile: Card layout */}
       <div className="lg:hidden flex flex-col gap-3">
         <div className="flex justify-between items-start">
           <span
@@ -147,8 +152,8 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
           </div>
         </div>
         {task.description && (
-          <span className="text-xs text-on-surface-variant">
-            {task.description}
+          <span className="text-xs text-on-surface-variant/50">
+            {truncateText(task.description, 80)}
           </span>
         )}
         <div className="flex flex-wrap gap-2 mt-1">

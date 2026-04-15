@@ -1,7 +1,7 @@
 "use client";
 
 import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
 import { TaskDetailsModal } from "./TaskDetailsModal";
@@ -33,23 +33,23 @@ export function TaskList({
     }
   };
 
-  const handleEdit = (task: Task) => {
+  const handleEdit = useCallback((task: Task) => {
     setEditingTask(task);
     setInternalFormOpen(true);
-  };
+  }, []);
 
   const handleCreate = async (formData: TaskFormData) => {
     await createTask(formData);
   };
 
-  const handleUpdate = async (id: string, data: PartialTaskFormData) => {
+  const handleUpdate = useCallback(async (id: string, data: PartialTaskFormData) => {
     await updateTask(id, data);
-  };
+  }, [updateTask]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     if (!confirm("Are you sure you want to delete this task?")) return;
     await deleteTask(id);
-  };
+  }, [deleteTask]);
 
   const handleFormSubmit = async (
     formData: PartialTaskFormData | TaskFormData,

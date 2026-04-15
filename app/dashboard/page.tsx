@@ -62,28 +62,29 @@ export default function DashboardPage() {
   const dashboardData = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
 
-    const dueToday = tasks.filter((task) => {
-      if (!task.due_date) return false;
-      const dueDate = task.due_date.split("T")[0];
-      return dueDate === today;
-    });
-
-    const overdue = tasks.filter((task) => {
-      if (task.status === "done") return false;
-      if (task.status === "overdue") return true;
-      if (!task.due_date) return false;
-      const dueDate = task.due_date.split("T")[0];
-      return dueDate < today;
-    });
-
-    const completed = groupedTasks.done;
-
+    const dueToday: Task[] = [];
+    const overdue: Task[] = [];
     const recent = [...tasks]
       .sort(
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       )
       .slice(0, 5);
+
+    for (const task of tasks) {
+      if (!task.due_date) continue;
+      const dueDate = task.due_date.split("T")[0];
+
+      if (dueDate === today) {
+        dueToday.push(task);
+      }
+
+      if (task.status !== "done" && task.status !== "overdue" && dueDate < today) {
+        overdue.push(task);
+      }
+    }
+
+    const completed = groupedTasks.done;
 
     return { dueToday, overdue, completed, recent };
   }, [tasks, groupedTasks]);
