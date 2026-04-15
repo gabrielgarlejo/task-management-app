@@ -5,7 +5,7 @@ import Link from "next/link";
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  activePage: "tasks" | "kanban";
+  activePage: "tasks" | "kanban" | "dashboard";
   onNewTask?: () => void;
 }
 
@@ -55,8 +55,12 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
         </div>
         <nav className="flex-1 space-y-2">
           <Link
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
-            href="/"
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
+              activePage === "dashboard"
+                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
+                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+            }`}
+            href="/dashboard"
           >
             <span className="material-symbols-outlined">dashboard</span>
             <span className="text-[13px] font-medium">Dashboard</span>
