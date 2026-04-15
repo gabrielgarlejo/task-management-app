@@ -9,6 +9,7 @@ interface KanbanColumnProps {
   colorDot: string;
   tasks: Task[];
   status: TaskStatus;
+  onTaskClick?: (task: Task) => void;
 }
 
 export function KanbanColumn({
@@ -16,6 +17,7 @@ export function KanbanColumn({
   colorDot,
   tasks,
   status,
+  onTaskClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
@@ -49,7 +51,7 @@ export function KanbanColumn({
           </div>
         ) : (
           tasks.map((task) => (
-            <KanbanTaskCard key={task.id} task={task} />
+            <KanbanTaskCard key={task.id} task={task} onClick={onTaskClick} />
           ))
         )}
         <button className="w-full py-3 border-2 border-dashed border-outline-variant/10 rounded-xl text-on-surface-variant/40 hover:text-on-surface-variant hover:border-outline-variant/30 transition-all flex items-center justify-center gap-2">

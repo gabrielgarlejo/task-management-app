@@ -1,29 +1,24 @@
 "use client";
 
 import { Task, TaskStatus } from "@/types/task";
-import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import { useSensors, useSensor } from "@dnd-kit/core";
 import {
   DndContext,
   DragOverlay,
   closestCorners,
   KeyboardSensor,
   PointerSensor,
-  useSensor,
-  useSensors,
   DragStartEvent,
   DragEndEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanTaskCard } from "./KanbanTaskCard";
-
-interface GroupedTasks {
-  todo: Task[];
-  in_progress: Task[];
-  done: Task[];
-  overdue: Task[];
-}
+import { TaskDetailsModal } from "./TaskDetailsModal";
+import { TaskForm } from "./TaskForm";
+import { useTasks } from "@/hooks/useTasks";
+import { PartialTaskFormData } from "@/types/task";
 
 const columnConfig = [
   {
@@ -45,10 +40,13 @@ const columnConfig = [
 ];
 
 export function KanbanBoard() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const { groupedTasks, updateTaskStatus, isLoading, error, deleteTask, updateTask } = useTasks({
+    channelName: "tasks-changes",
+  });
+  const [activeTask, setActiveTask] = useState<{ id: string; task: Task } | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -61,75 +59,9 @@ export function KanbanBoard() {
     }),
   );
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const res = await fetch("/api/tasks");
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setTasks(data.tasks || []);
-      }
-    } catch {
-      setError("Failed to fetch tasks");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("tasks-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "tasks",
-        },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setTasks((prev) => {
-              if (prev.some((t) => t.id === (payload.new as Task).id)) {
-                return prev;
-              }
-              return [payload.new as Task, ...prev];
-            });
-          } else if (payload.eventType === "UPDATE") {
-            setTasks((prev) =>
-              prev.map((t) =>
-                t.id === payload.new.id
-                  ? { ...t, ...(payload.new as Task) }
-                  : t,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setTasks((prev) => prev.filter((t) => t.id !== payload.old.id));
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const groupedTasks: GroupedTasks = {
-    todo: tasks.filter((t) => t.status === "todo"),
-    in_progress: tasks.filter((t) => t.status === "in_progress"),
-    done: tasks.filter((t) => t.status === "done"),
-    overdue: tasks.filter((t) => t.status === "overdue"),
-  };
-
   const findContainer = (id: string): TaskStatus | undefined => {
     for (const col of columnConfig) {
-      const task = groupedTasks[col.status].find((t) => t.id === id);
+      const task = groupedTasks[col.status]?.find((t) => t.id === id);
       if (task) return col.status;
     }
     return undefined;
@@ -137,8 +69,13 @@ export function KanbanBoard() {
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const task = tasks.find((t) => t.id === active.id);
-    if (task) setActiveTask(task);
+    for (const col of columnConfig) {
+      const task = groupedTasks[col.status]?.find((t) => t.id === active.id);
+      if (task) {
+        setActiveTask({ id: task.id, task });
+        break;
+      }
+    }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -162,39 +99,7 @@ export function KanbanBoard() {
     if (!activeContainer || !overContainer) return;
     if (activeContainer === overContainer) return;
 
-    // Optimistic update - update state immediately
-    setTasks((prev) =>
-      prev.map((t) =>
-        t.id === activeId ? { ...t, status: overContainer! } : t,
-      ),
-    );
-
-    // Then make API call in background
-    try {
-      const res = await fetch(`/api/tasks/${activeId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: overContainer }),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-        // Revert on error
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === activeId ? { ...t, status: activeContainer } : t,
-          ),
-        );
-      }
-    } catch {
-      setError("Failed to update task status");
-      // Revert on error
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === activeId ? { ...t, status: activeContainer } : t,
-        ),
-      );
-    }
+    await updateTaskStatus(activeId, overContainer);
   };
 
   if (isLoading) {
@@ -210,30 +115,64 @@ export function KanbanBoard() {
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex gap-8 h-[calc(100vh-280px)] kanban-scroll overflow-x-auto">
-        {columnConfig.map((col) => (
-          <KanbanColumn
-            key={col.status}
-            title={col.title}
-            colorDot={col.colorDot}
-            tasks={groupedTasks[col.status]}
-            status={col.status}
-          />
-        ))}
-      </div>
-      <DragOverlay>
-        {activeTask ? (
-          <div className="rotate-3 opacity-90">
-            <KanbanTaskCard task={activeTask} />
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    <>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex gap-8 h-[calc(100vh-280px)] kanban-scroll overflow-x-auto">
+          {columnConfig.map((col) => (
+            <KanbanColumn
+              key={col.status}
+              title={col.title}
+              colorDot={col.colorDot}
+              tasks={groupedTasks[col.status] || []}
+              status={col.status}
+              onTaskClick={setSelectedTask}
+            />
+          ))}
+        </div>
+        <DragOverlay>
+          {activeTask ? (
+            <div className="rotate-3 opacity-90">
+              <KanbanTaskCard task={activeTask.task} />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onEdit={(task) => {
+            setSelectedTask(null);
+            setEditingTask(task);
+            setIsEditing(true);
+          }}
+          onDelete={deleteTask}
+        />
+      )}
+
+      {isEditing && (
+        <TaskForm
+          isOpen={isEditing}
+          onClose={() => {
+            setIsEditing(false);
+            setEditingTask(null);
+          }}
+          onSubmit={async (data) => {
+            if (editingTask) {
+              await updateTask(editingTask.id, data as PartialTaskFormData);
+            }
+            setIsEditing(false);
+            setEditingTask(null);
+          }}
+          editTask={editingTask}
+        />
+      )}
+    </>
   );
 }

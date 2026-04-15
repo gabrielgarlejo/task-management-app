@@ -1,11 +1,13 @@
 "use client";
 
-import { Task, TaskPriority, TaskStatus } from "@/types/task";
+import { Task, TaskPriority } from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { getRelativeDateLabel } from "@/lib/date";
 
 interface KanbanTaskCardProps {
   task: Task;
+  onClick?: (task: Task) => void;
 }
 
 const priorityStyles: Record<TaskPriority, string> = {
@@ -20,7 +22,7 @@ const priorityLabels: Record<TaskPriority, string> = {
   low: "Low",
 };
 
-export function KanbanTaskCard({ task }: KanbanTaskCardProps) {
+export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -42,23 +44,7 @@ export function KanbanTaskCard({ task }: KanbanTaskCardProps) {
   };
 
   const formatDate = (date: string | null) => {
-    if (!date) return "No due date";
-    const d = new Date(date);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(date);
-    dueDate.setHours(0, 0, 0, 0);
-
-    if (dueDate < today && task.status !== "done") {
-      return "Overdue";
-    }
-    if (dueDate.getTime() === today.getTime()) {
-      return "Today";
-    }
-    return d.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
+    return getRelativeDateLabel(date, task.status);
   };
 
   const isDone = task.status === "done";
@@ -72,6 +58,10 @@ export function KanbanTaskCard({ task }: KanbanTaskCardProps) {
       className={`bg-surface-container-low p-5 rounded-xl border border-transparent hover:border-outline-variant/30 transition-all group cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-50" : ""
       } ${isDone ? "opacity-60 grayscale-[0.3]" : ""}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(task);
+      }}
     >
       <div className="flex justify-between items-start mb-3">
         <span
