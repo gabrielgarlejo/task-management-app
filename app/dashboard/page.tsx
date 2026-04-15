@@ -79,7 +79,11 @@ export default function DashboardPage() {
         dueToday.push(task);
       }
 
-      if (task.status !== "done" && task.status !== "overdue" && dueDate < today) {
+      if (
+        task.status !== "done" &&
+        task.status !== "overdue" &&
+        dueDate < today
+      ) {
         overdue.push(task);
       }
     }
@@ -109,7 +113,7 @@ export default function DashboardPage() {
             Dashboard
           </h2>
           <p className="text-sm text-on-surface-variant mt-1">
-            Overview of your tasks at a glance
+            Overview of your tasks
           </p>
         </div>
 
