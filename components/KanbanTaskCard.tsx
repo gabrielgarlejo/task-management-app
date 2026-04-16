@@ -43,10 +43,6 @@ export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
     transition,
   };
 
-  const formatDate = (date: string | null) => {
-    return getRelativeDateLabel(date, task.status);
-  };
-
   const isDone = task.status === "done";
 
   return (
@@ -85,7 +81,7 @@ export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-on-surface-variant">
           <span className="material-symbols-outlined text-sm">calendar_today</span>
-          <span className="text-[11px] font-medium">{formatDate(task.due_date)}</span>
+          <span className="text-[11px] font-medium">{getRelativeDateLabel(task.due_date, task.status)}</span>
         </div>
       </div>
     </div>
