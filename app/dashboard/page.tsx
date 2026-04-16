@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useMemo } from "react";
 import { AppLayout } from "@/components/AppLayout";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks } from "@/contexts/TasksContext";
 import { Task } from "@/types/task";
 import Link from "next/link";
 import { TaskDetailsModal } from "@/components/TaskDetailsModal";

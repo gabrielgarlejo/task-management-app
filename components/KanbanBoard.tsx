@@ -1,7 +1,7 @@
 "use client";
 
 import { Task, TaskStatus } from "@/types/task";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSensors, useSensor } from "@dnd-kit/core";
 import {
   DndContext,
@@ -17,7 +17,7 @@ import { KanbanColumn } from "./KanbanColumn";
 import { KanbanTaskCard } from "./KanbanTaskCard";
 import { TaskDetailsModal } from "./TaskDetailsModal";
 import { TaskForm } from "./TaskForm";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks } from "@/contexts/TasksContext";
 import { PartialTaskFormData } from "@/types/task";
 
 const columnConfig = [
@@ -40,9 +40,7 @@ const columnConfig = [
 ];
 
 export function KanbanBoard() {
-  const { groupedTasks, updateTaskStatus, isLoading, error, deleteTask, updateTask } = useTasks({
-    channelName: "tasks-changes",
-  });
+  const { groupedTasks, updateTaskStatus, isLoading, error, deleteTask, updateTask } = useTasks();
   const [activeTask, setActiveTask] = useState<{ id: string; task: Task } | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -59,48 +57,85 @@ export function KanbanBoard() {
     }),
   );
 
-  const findContainer = (id: string): TaskStatus | undefined => {
-    for (const col of columnConfig) {
-      const task = groupedTasks[col.status]?.find((t) => t.id === id);
-      if (task) return col.status;
-    }
-    return undefined;
-  };
+  const taskToStatusMap = useMemo(() => {
+    const map = new Map<string, TaskStatus>();
+    Object.entries(groupedTasks).forEach(([status, tasks]) => {
+      tasks.forEach((t) => map.set(t.id, status as TaskStatus));
+    });
+    return map;
+  }, [groupedTasks]);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    for (const col of columnConfig) {
-      const task = groupedTasks[col.status]?.find((t) => t.id === active.id);
+  const findContainer = useCallback(
+    (id: string): TaskStatus | undefined => {
+      return taskToStatusMap.get(id);
+    },
+    [taskToStatusMap],
+  );
+
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const { active } = event;
+      const task = taskToStatusMap.get(active.id as string);
       if (task) {
-        setActiveTask({ id: task.id, task });
-        break;
+        const foundTask = groupedTasks[task]?.find((t) => t.id === active.id);
+        if (foundTask) {
+          setActiveTask({ id: foundTask.id, task: foundTask });
+        }
       }
-    }
-  };
+    },
+    [groupedTasks, taskToStatusMap],
+  );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveTask(null);
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveTask(null);
 
-    if (!over) return;
+      if (!over) return;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+      const activeId = active.id as string;
+      const overId = over.id as string;
 
-    const activeContainer = findContainer(activeId);
-    let overContainer: TaskStatus | undefined;
+      const activeContainer = findContainer(activeId);
+      let overContainer: TaskStatus | undefined;
 
-    if (columnConfig.some((col) => col.status === overId)) {
-      overContainer = overId as TaskStatus;
-    } else {
-      overContainer = findContainer(overId);
-    }
+      if (columnConfig.some((col) => col.status === overId)) {
+        overContainer = overId as TaskStatus;
+      } else {
+        overContainer = findContainer(overId);
+      }
 
-    if (!activeContainer || !overContainer) return;
-    if (activeContainer === overContainer) return;
+      if (!activeContainer || !overContainer) return;
+      if (activeContainer === overContainer) return;
 
-    await updateTaskStatus(activeId, overContainer);
-  };
+      await updateTaskStatus(activeId, overContainer);
+    },
+    [findContainer, updateTaskStatus],
+  );
+
+  const handleCloseModal = useCallback(() => setSelectedTask(null), []);
+  const handleEditFromModal = useCallback(
+    (task: Task) => {
+      setSelectedTask(null);
+      setEditingTask(task);
+      setIsEditing(true);
+    },
+    [],
+  );
+  const handleCloseForm = useCallback(() => {
+    setIsEditing(false);
+    setEditingTask(null);
+  }, []);
+  const handleFormSubmit = useCallback(
+    async (data: PartialTaskFormData) => {
+      if (editingTask) {
+        await updateTask(editingTask.id, data as PartialTaskFormData);
+      }
+      setIsEditing(false);
+      setEditingTask(null);
+    },
+    [editingTask, updateTask],
+  );
 
   if (isLoading) {
     return (
@@ -146,12 +181,8 @@ export function KanbanBoard() {
       {selectedTask && (
         <TaskDetailsModal
           task={selectedTask}
-          onClose={() => setSelectedTask(null)}
-          onEdit={(task) => {
-            setSelectedTask(null);
-            setEditingTask(task);
-            setIsEditing(true);
-          }}
+          onClose={handleCloseModal}
+          onEdit={handleEditFromModal}
           onDelete={deleteTask}
         />
       )}
@@ -159,17 +190,8 @@ export function KanbanBoard() {
       {isEditing && (
         <TaskForm
           isOpen={isEditing}
-          onClose={() => {
-            setIsEditing(false);
-            setEditingTask(null);
-          }}
-          onSubmit={async (data) => {
-            if (editingTask) {
-              await updateTask(editingTask.id, data as PartialTaskFormData);
-            }
-            setIsEditing(false);
-            setEditingTask(null);
-          }}
+          onClose={handleCloseForm}
+          onSubmit={handleFormSubmit}
           editTask={editingTask}
         />
       )}

@@ -1,11 +1,11 @@
 "use client";
 
 import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
 import { TaskDetailsModal } from "./TaskDetailsModal";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks } from "@/contexts/TasksContext";
 
 interface TaskListProps {
   externalFormOpen?: boolean;
@@ -16,17 +16,16 @@ export function TaskList({
   externalFormOpen,
   onExternalFormClose,
 }: TaskListProps) {
-  const { tasks, createTask, updateTask, deleteTask, isLoading, error } = useTasks({
-    channelName: "tasks-changes-list",
-  });
+  const { tasks, createTask, updateTask, deleteTask, isLoading, error } = useTasks();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [internalFormOpen, setInternalFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [hideCompleted, setHideCompleted] = useState(false);
 
-  const filteredTasks = hideCompleted
-    ? tasks.filter((task) => task.status !== "done")
-    : tasks;
+  const filteredTasks = useMemo(
+    () => (hideCompleted ? tasks.filter((task) => task.status !== "done") : tasks),
+    [tasks, hideCompleted],
+  );
 
   const isFormOpen = externalFormOpen || internalFormOpen;
 
