@@ -4,6 +4,7 @@ import { Task, TaskPriority } from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { getRelativeDateLabel } from "@/lib/date";
+import { memo } from "react";
 
 interface KanbanTaskCardProps {
   task: Task;
@@ -22,7 +23,7 @@ const priorityLabels: Record<TaskPriority, string> = {
   low: "Low",
 };
 
-export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
+function KanbanTaskCardComponent({ task, onClick }: KanbanTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -87,3 +88,5 @@ export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
     </div>
   );
 }
+
+export const KanbanTaskCard = memo(KanbanTaskCardComponent);
