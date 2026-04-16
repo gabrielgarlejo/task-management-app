@@ -12,14 +12,14 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024;
-    }
-    return false;
-  });
+  const [isMobile, setIsMobile] = useState(false);
   const { user, logout, isLoading: authLoading } = useAuth();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMobile(window.innerWidth < 1024);
+  }, []);
 
   const handleResize = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
