@@ -22,6 +22,11 @@ export function TaskList({
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [internalFormOpen, setInternalFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [hideCompleted, setHideCompleted] = useState(false);
+
+  const filteredTasks = hideCompleted
+    ? tasks.filter((task) => task.status !== "done")
+    : tasks;
 
   const isFormOpen = externalFormOpen || internalFormOpen;
 
@@ -64,22 +69,37 @@ export function TaskList({
 
   return (
     <div className="space-y-4">
-      <div className="hidden lg:grid grid-cols-[1fr_120px_140px_140px_100px] gap-8 px-8 py-2">
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">
-          Task Intent
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">
-          Priority
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40 text-center">
-          Status
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">
-          Due Date
-        </span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40 text-right">
-          Actions
-        </span>
+      <div className="flex items-center justify-between">
+        <div className="hidden lg:grid grid-cols-[1fr_120px_140px_140px_100px] gap-8 px-8 py-2 flex-1">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">
+            Task Intent
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">
+            Priority
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40 text-center">
+            Status
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40">
+            Due Date
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant/40 text-right">
+            Actions
+          </span>
+        </div>
+        <button
+          onClick={() => setHideCompleted(!hideCompleted)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border-none cursor-pointer transition-colors ${
+            hideCompleted
+              ? "bg-primary/20 text-primary"
+              : "bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high"
+          }`}
+        >
+          <span className="material-symbols-outlined text-sm">
+            {hideCompleted ? "visibility" : "visibility_off"}
+          </span>
+          {hideCompleted ? "Show Done" : "Hide Done"}
+        </button>
       </div>
 
       {isLoading ? (
@@ -88,12 +108,12 @@ export function TaskList({
         </div>
       ) : error ? (
         <div className="text-center py-12 text-error">{error}</div>
-      ) : tasks.length === 0 ? (
+      ) : filteredTasks.length === 0 ? (
         <div className="text-center py-12 text-on-surface-variant">
           No tasks found
         </div>
       ) : (
-        tasks.map((task) => (
+        filteredTasks.map((task) => (
           <TaskItem
             key={task.id}
             task={task}
