@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -19,14 +19,21 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
     return false;
   });
   const { user, logout, isLoading: authLoading } = useAuth();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleResize = useCallback(() => {
-    setIsMobile(window.innerWidth < 1024);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setIsMobile(window.innerWidth < 1024);
+    }, 150);
   }, []);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [handleResize]);
 
   const handleLogout = async () => {
