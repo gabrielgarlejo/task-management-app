@@ -47,7 +47,7 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
       <aside
         className={`
           fixed z-50
-          w-[280px] h-screen bg-[#060e20] flex flex-col py-8 px-6
+          w-[280px] h-screen bg-surface-container-lowest flex flex-col py-8 px-6
           transition-transform duration-300 ease-in-out
           ${isMobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
@@ -61,10 +61,10 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           </button>
         )}
         <div className="mb-10 px-2">
-          <h1 className="text-xl font-bold tracking-tight text-[#dae2fd]">
+          <h1 className="text-xl font-bold tracking-tight text-on-surface">
             TaskFlow
           </h1>
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-[#ccc3d8] mt-1">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-on-surface-variant mt-1">
             Editorial Workspace
           </p>
         </div>
@@ -72,8 +72,8 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           <Link
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
               activePage === "dashboard"
-                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
-                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+                ? "text-primary font-semibold border-l-4 border-primary bg-transparent"
+                : "hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             }`}
             href="/dashboard"
           >
@@ -83,8 +83,8 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           <Link
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
               activePage === "tasks"
-                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
-                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+                ? "text-primary font-semibold border-l-4 border-primary bg-transparent"
+                : "hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             }`}
             href="/"
           >
@@ -95,15 +95,15 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
             href="/kanban"
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
               activePage === "kanban"
-                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
-                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+                ? "text-primary font-semibold border-l-4 border-primary bg-transparent"
+                : "hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             }`}
           >
             <span className="material-symbols-outlined">view_kanban</span>
             <span className="text-[13px] font-medium">Kanban</span>
           </Link>
           <a
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             href="#"
           >
             <span className="material-symbols-outlined">settings</span>
@@ -141,7 +141,7 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
         </div>
       </aside>
 
-      <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-[#0b1326]/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
+      <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-surface/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
         <div className="flex items-center gap-3">
           {isMobile && (
             <button
@@ -165,20 +165,20 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
         <div className="flex items-center gap-4 lg:gap-8">
           <div className="flex items-center gap-6">
             <a
-              className="text-sm font-medium text-[#ccc3d8] hover:text-[#dae2fd] transition-opacity"
+              className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-opacity"
               href="#"
             >
               Projects
             </a>
-            <a className="text-sm font-bold text-[#d0bcff]" href="#">
+            <a className="text-sm font-bold text-primary" href="#">
               Analytics
             </a>
           </div>
-          <div className="flex items-center gap-4 text-[#ccc3d8]">
-            <button className="material-symbols-outlined hover:text-[#dae2fd] ease-[cubic-bezier(0.4,0,0.2,1)]">
+          <div className="flex items-center gap-4 text-on-surface-variant">
+            <button className="material-symbols-outlined hover:text-on-surface ease-[cubic-bezier(0.4,0,0.2,1)]">
               notifications
             </button>
-            <button className="material-symbols-outlined hover:text-[#dae2fd] ease-[cubic-bezier(0.4,0,0.2,1)]">
+            <button className="material-symbols-outlined hover:text-on-surface ease-[cubic-bezier(0.4,0,0.2,1)]">
               help_outline
             </button>
           </div>
