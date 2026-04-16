@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { config } from "@/lib/config";
 
 const LoginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validated = LoginSchema.parse(body);
 
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey);
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: validated.email,
@@ -40,16 +38,16 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set("sb-access-token", data.session.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: config.isProduction,
+      sameSite: "strict",
       path: "/",
       maxAge: data.session.expires_in,
     });
 
     response.cookies.set("sb-refresh-token", data.session.refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: config.isProduction,
+      sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24 * 30,
     });
