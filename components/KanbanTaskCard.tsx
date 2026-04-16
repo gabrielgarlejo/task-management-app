@@ -4,6 +4,7 @@ import { Task, TaskPriority } from "@/types/task";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { getRelativeDateLabel } from "@/lib/date";
+import { memo } from "react";
 
 interface KanbanTaskCardProps {
   task: Task;
@@ -22,7 +23,7 @@ const priorityLabels: Record<TaskPriority, string> = {
   low: "Low",
 };
 
-export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
+function KanbanTaskCardComponent({ task, onClick }: KanbanTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -41,10 +42,6 @@ export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  };
-
-  const formatDate = (date: string | null) => {
-    return getRelativeDateLabel(date, task.status);
   };
 
   const isDone = task.status === "done";
@@ -85,9 +82,11 @@ export function KanbanTaskCard({ task, onClick }: KanbanTaskCardProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-on-surface-variant">
           <span className="material-symbols-outlined text-sm">calendar_today</span>
-          <span className="text-[11px] font-medium">{formatDate(task.due_date)}</span>
+          <span className="text-[11px] font-medium">{getRelativeDateLabel(task.due_date, task.status)}</span>
         </div>
       </div>
     </div>
   );
 }
+
+export const KanbanTaskCard = memo(KanbanTaskCardComponent);

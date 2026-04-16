@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/hooks/useAuth";
+import { TasksProvider } from "@/contexts/TasksContext";
 
 export const metadata: Metadata = {
   title: "TaskFlow - Editorial Workspace",
@@ -30,7 +32,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface text-on-surface min-h-screen">
-        {children}
+        <AuthProvider>
+          <TasksProvider>{children}</TasksProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,31 +1,48 @@
 import { TaskStatus } from '@/types/task';
 
-export function formatDate(date: string | null): string {
-  if (!date) return 'No due date';
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
-}
+export type DateFormat = 'short' | 'long' | 'time' | 'relative';
 
-export function formatDateLong(date: string | null): string {
+export function formatDate(date: string | null, format: DateFormat = 'short'): string {
   if (!date) return 'No due date';
-  return new Date(date).toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  
+  const d = new Date(date);
+  
+  switch (format) {
+    case 'short':
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    case 'long':
+      return d.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    case 'time':
+      return d.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    default:
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+  }
 }
 
 export function formatDateTime(date: string): string {
-  return new Date(date).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  return formatDate(date, 'time');
+}
+
+export function formatDateLong(date: string | null): string {
+  return formatDate(date, 'long');
 }
 
 export function getRelativeDateLabel(date: string | null, status: TaskStatus): string {

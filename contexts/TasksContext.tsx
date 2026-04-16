@@ -1,16 +1,50 @@
 "use client";
 
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+  ReactNode,
+} from "react";
 import { Task, TaskFormData, PartialTaskFormData, TaskStatus } from "@/types/task";
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
-interface UseTasksOptions {
-  channelName?: string;
-  enableRealtime?: boolean;
+interface TasksContextValue {
+  tasks: Task[];
+  isLoading: boolean;
+  error: string | null;
+  groupedTasks: {
+    todo: Task[];
+    in_progress: Task[];
+    done: Task[];
+    overdue: Task[];
+  };
+  fetchTasks: () => Promise<void>;
+  createTask: (formData: TaskFormData) => Promise<boolean>;
+  updateTask: (id: string, data: PartialTaskFormData) => Promise<boolean>;
+  deleteTask: (id: string) => Promise<boolean>;
+  updateTaskStatus: (id: string, status: TaskStatus) => Promise<boolean>;
 }
 
-export function useTasks(options: UseTasksOptions = {}) {
-  const { channelName = "tasks-changes", enableRealtime = true } = options;
+const TasksContext = createContext<TasksContextValue | null>(null);
+
+export function useTasks() {
+  const context = useContext(TasksContext);
+  if (!context) {
+    throw new Error("useTasks must be used within TasksProvider");
+  }
+  return context;
+}
+
+export function TasksProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const channelName = "tasks-changes";
+  const enableRealtime = true;
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -21,6 +55,10 @@ export function useTasks(options: UseTasksOptions = {}) {
     try {
       setIsLoading(true);
       const res = await fetch("/api/tasks");
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
       const data = await res.json();
       if (data.error) {
         setError(data.error);
@@ -32,7 +70,7 @@ export function useTasks(options: UseTasksOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchTasks();
@@ -75,7 +113,7 @@ export function useTasks(options: UseTasksOptions = {}) {
     };
   }, [channelName, enableRealtime]);
 
-  const createTask = async (formData: TaskFormData) => {
+  const createTask = useCallback(async (formData: TaskFormData) => {
     try {
       const res = await fetch("/api/tasks", {
         method: "POST",
@@ -93,9 +131,9 @@ export function useTasks(options: UseTasksOptions = {}) {
       setError("Failed to create task");
       return false;
     }
-  };
+  }, []);
 
-  const updateTask = async (id: string, data: PartialTaskFormData) => {
+  const updateTask = useCallback(async (id: string, data: PartialTaskFormData) => {
     try {
       const res = await fetch(`/api/tasks/${id}`, {
         method: "PATCH",
@@ -113,9 +151,9 @@ export function useTasks(options: UseTasksOptions = {}) {
       setError("Failed to update task");
       return false;
     }
-  };
+  }, []);
 
-  const deleteTask = async (id: string) => {
+  const deleteTask = useCallback(async (id: string) => {
     try {
       const res = await fetch(`/api/tasks/${id}`, {
         method: "DELETE",
@@ -131,9 +169,9 @@ export function useTasks(options: UseTasksOptions = {}) {
       setError("Failed to delete task");
       return false;
     }
-  };
+  }, []);
 
-  const updateTaskStatus = async (id: string, status: TaskStatus) => {
+  const updateTaskStatus = useCallback(async (id: string, status: TaskStatus) => {
     const task = tasks.find((t) => t.id === id);
     const previousStatus = task?.status;
 
@@ -169,7 +207,7 @@ export function useTasks(options: UseTasksOptions = {}) {
       }
       return false;
     }
-  };
+  }, [tasks]);
 
   const groupedTasks = useMemo(
     () => ({
@@ -181,7 +219,7 @@ export function useTasks(options: UseTasksOptions = {}) {
     [tasks],
   );
 
-  return {
+  const value: TasksContextValue = {
     tasks,
     isLoading,
     error,
@@ -192,4 +230,10 @@ export function useTasks(options: UseTasksOptions = {}) {
     deleteTask,
     updateTaskStatus,
   };
+
+  return (
+    <TasksContext.Provider value={value}>
+      {children}
+    </TasksContext.Provider>
+  );
 }

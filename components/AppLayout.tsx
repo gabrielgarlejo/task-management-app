@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -11,21 +12,35 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024;
-    }
-    return false;
-  });
+  const [isMobile, setIsMobile] = useState(false);
+  const { user, logout, isLoading: authLoading } = useAuth();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMobile(window.innerWidth < 1024);
+  }, []);
 
   const handleResize = useCallback(() => {
-    setIsMobile(window.innerWidth < 1024);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setIsMobile(window.innerWidth < 1024);
+    }, 150);
   }, []);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [handleResize]);
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  const userInitial = user?.email ? user.email[0].toUpperCase() : "?";
 
   return (
     <>
@@ -39,7 +54,7 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
       <aside
         className={`
           fixed z-50
-          w-[280px] h-screen bg-[#060e20] flex flex-col py-8 px-6
+          w-[280px] h-screen bg-surface-container-lowest flex flex-col py-8 px-6
           transition-transform duration-300 ease-in-out
           ${isMobileNavOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         `}
@@ -53,10 +68,10 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           </button>
         )}
         <div className="mb-10 px-2">
-          <h1 className="text-xl font-bold tracking-tight text-[#dae2fd]">
+          <h1 className="text-xl font-bold tracking-tight text-on-surface">
             TaskFlow
           </h1>
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-[#ccc3d8] mt-1">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-on-surface-variant mt-1">
             Editorial Workspace
           </p>
         </div>
@@ -64,8 +79,8 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           <Link
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
               activePage === "dashboard"
-                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
-                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+                ? "text-primary font-semibold border-l-4 border-primary bg-transparent"
+                : "hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             }`}
             href="/dashboard"
           >
@@ -75,8 +90,8 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           <Link
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
               activePage === "tasks"
-                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
-                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+                ? "text-primary font-semibold border-l-4 border-primary bg-transparent"
+                : "hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             }`}
             href="/"
           >
@@ -87,15 +102,15 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
             href="/kanban"
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${
               activePage === "kanban"
-                ? "text-[#d0bcff] font-semibold border-l-4 border-[#d0bcff] bg-transparent"
-                : "hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+                ? "text-primary font-semibold border-l-4 border-primary bg-transparent"
+                : "hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             }`}
           >
             <span className="material-symbols-outlined">view_kanban</span>
             <span className="text-[13px] font-medium">Kanban</span>
           </Link>
           <a
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-[#2d3449]/50 text-[#ccc3d8] font-normal hover:text-[#dae2fd]"
+            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
             href="#"
           >
             <span className="material-symbols-outlined">settings</span>
@@ -112,25 +127,28 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
               <span>New Task</span>
             </button>
           )}
-          <div className="mt-8 flex items-center gap-3 px-2">
-            <img
-              alt="User profile"
-              className="w-10 h-10 rounded-full object-cover grayscale brightness-90"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMqkXx96vML_62GRu_bMoPNZLF4dtJXzSmWWyOufFnrHsoYO3L9fpB3eN86AxSalRjF0j0251TsPU-wElsRnzU2Ddhwld057oixqLRByi1LZXcCe2GDXrJuI-xl3Q8I_PNuNbxLRRKZjpOpSh7eu9XjnE9yLXQfTbyweTHARQWiapaZRp-XIkdVgRBAjLgiYTi2StndQue4hFhLnODixnoSyu8ry0P7fU_EA865E1KbwcW13AQx1sf19mXtSHA2zNbI8eQoDy8xA"
-            />
-            <div className="overflow-hidden">
-              <p className="text-sm font-semibold text-on-surface truncate">
-                Alex Sterling
-              </p>
-              <p className="text-[10px] text-on-surface-variant uppercase tracking-widest">
-                Admin
-              </p>
+          {!authLoading && (
+            <div className="mt-8 flex items-center gap-3 px-2">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-primary font-bold">{userInitial}</span>
+              </div>
+              <div className="overflow-hidden flex-1">
+                <p className="text-sm font-semibold text-on-surface truncate">
+                  {user?.email || "User"}
+                </p>
+                <button
+                  onClick={handleLogout}
+                  className="text-[10px] text-on-surface-variant hover:text-primary transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </aside>
 
-      <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-[#0b1326]/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
+      <header className="fixed top-0 right-0 left-0 lg:left-[280px] h-16 bg-surface/60 backdrop-blur-3xl z-40 flex justify-between items-center px-4 lg:px-12">
         <div className="flex items-center gap-3">
           {isMobile && (
             <button
@@ -154,20 +172,20 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
         <div className="flex items-center gap-4 lg:gap-8">
           <div className="flex items-center gap-6">
             <a
-              className="text-sm font-medium text-[#ccc3d8] hover:text-[#dae2fd] transition-opacity"
+              className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-opacity"
               href="#"
             >
               Projects
             </a>
-            <a className="text-sm font-bold text-[#d0bcff]" href="#">
+            <a className="text-sm font-bold text-primary" href="#">
               Analytics
             </a>
           </div>
-          <div className="flex items-center gap-4 text-[#ccc3d8]">
-            <button className="material-symbols-outlined hover:text-[#dae2fd] ease-[cubic-bezier(0.4,0,0.2,1)]">
+          <div className="flex items-center gap-4 text-on-surface-variant">
+            <button className="material-symbols-outlined hover:text-on-surface ease-[cubic-bezier(0.4,0,0.2,1)]">
               notifications
             </button>
-            <button className="material-symbols-outlined hover:text-[#dae2fd] ease-[cubic-bezier(0.4,0,0.2,1)]">
+            <button className="material-symbols-outlined hover:text-on-surface ease-[cubic-bezier(0.4,0,0.2,1)]">
               help_outline
             </button>
           </div>
