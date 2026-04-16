@@ -1,9 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!;
+import { config } from './config';
 
 export async function getSupabaseWithAuth(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
@@ -13,7 +10,7 @@ export async function getSupabaseWithAuth(): Promise<SupabaseClient> {
     throw new Error('No access token found');
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  return createClient(config.supabaseUrl, config.supabaseAnonKey, {
     global: {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -23,7 +20,7 @@ export async function getSupabaseWithAuth(): Promise<SupabaseClient> {
 }
 
 export async function getSupabaseServer(): Promise<SupabaseClient> {
-  return createClient(supabaseUrl, supabaseServiceKey);
+  return createClient(config.supabaseUrl, config.supabaseServiceKey);
 }
 
 export async function getCurrentUser() {
@@ -36,18 +33,6 @@ export async function getCurrentUser() {
     }
     
     return user;
-  } catch {
-    return null;
-  }
-}
-
-export function parseAuthToken(token: string): { user_id: string } | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-    return payload;
   } catch {
     return null;
   }
