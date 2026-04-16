@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { supabaseServer } from "@/lib/supabase-server";
+import { getCurrentUser, getSupabaseServer } from "@/lib/auth";
 
 const TaskUpdateSchema = z.object({
   title: z.string().min(1).optional(),
@@ -15,19 +15,30 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
+    const supabaseServer = await getSupabaseServer();
 
     const body = await request.json();
     const validated = TaskUpdateSchema.parse(body);
 
     const { data: existing } = await supabaseServer
       .from("tasks")
-      .select("id")
+      .select("id, user_id")
       .eq("id", id)
       .single();
 
     if (!existing) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    if (existing.user_id !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { data, error } = await supabaseServer
@@ -58,16 +69,27 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const user = await getCurrentUser();
+    
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
+    const supabaseServer = await getSupabaseServer();
 
     const { data: existing } = await supabaseServer
       .from("tasks")
-      .select("id")
+      .select("id, user_id")
       .eq("id", id)
       .single();
 
     if (!existing) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    if (existing.user_id !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { error } = await supabaseServer.from("tasks").delete().eq("id", id);

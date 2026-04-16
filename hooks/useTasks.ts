@@ -3,6 +3,7 @@
 import { Task, TaskFormData, PartialTaskFormData, TaskStatus } from "@/types/task";
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 interface UseTasksOptions {
   channelName?: string;
@@ -10,6 +11,7 @@ interface UseTasksOptions {
 }
 
 export function useTasks(options: UseTasksOptions = {}) {
+  const router = useRouter();
   const { channelName = "tasks-changes", enableRealtime = true } = options;
 
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -21,6 +23,10 @@ export function useTasks(options: UseTasksOptions = {}) {
     try {
       setIsLoading(true);
       const res = await fetch("/api/tasks");
+      if (res.status === 401) {
+        router.push("/login");
+        return;
+      }
       const data = await res.json();
       if (data.error) {
         setError(data.error);
@@ -32,7 +38,7 @@ export function useTasks(options: UseTasksOptions = {}) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     fetchTasks();
