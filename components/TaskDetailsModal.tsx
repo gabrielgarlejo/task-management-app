@@ -18,10 +18,8 @@ export function TaskDetailsModal({
   onDelete,
 }: TaskDetailsModalProps) {
   const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this task?")) {
-      onDelete(task.id);
-      onClose();
-    }
+    onDelete(task.id);
+    onClose();
   };
 
   return (

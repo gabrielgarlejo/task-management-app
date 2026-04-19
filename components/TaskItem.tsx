@@ -8,7 +8,6 @@ import { formatDate } from "@/lib/date";
 interface TaskItemProps {
   task: Task;
   onUpdate: (id: string, data: Partial<Task>) => void;
-  onDelete: (id: string) => void;
   onEdit: (task: Task) => void;
   onClick?: (task: Task) => void;
 }
@@ -18,7 +17,7 @@ const truncateText = (text: string, maxLength: number) => {
   return text.slice(0, maxLength) + "...";
 };
 
-function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskItemProps) {
+function TaskItemComponent({ task, onUpdate, onEdit, onClick }: TaskItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handlePriorityChange = async (priority: TaskPriority) => {
@@ -96,7 +95,7 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
             edit
           </button>
           <button
-            onClick={() => onDelete(task.id)}
+            onClick={() => onClick?.(task)}
             className="material-symbols-outlined text-xl text-on-surface-variant hover:text-error"
             title="Delete"
           >
@@ -123,7 +122,7 @@ function TaskItemComponent({ task, onUpdate, onDelete, onEdit, onClick }: TaskIt
               edit
             </button>
             <button
-              onClick={() => onDelete(task.id)}
+              onClick={() => onClick?.(task)}
               className="material-symbols-outlined text-lg text-on-surface-variant hover:text-error"
               title="Delete"
             >

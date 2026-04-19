@@ -51,7 +51,6 @@ export function TaskList({
   }, [updateTask]);
 
   const handleDelete = useCallback(async (id: string) => {
-    if (!confirm("Are you sure you want to delete this task?")) return;
     await deleteTask(id);
   }, [deleteTask]);
 
@@ -117,7 +116,6 @@ export function TaskList({
             key={task.id}
             task={task}
             onUpdate={handleUpdate}
-            onDelete={handleDelete}
             onEdit={handleEdit}
             onClick={setSelectedTask}
           />
