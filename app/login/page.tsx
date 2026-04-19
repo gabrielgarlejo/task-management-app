@@ -6,8 +6,11 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormData } from "@/lib/schemas";
+import { useAuth } from "@/hooks/useAuth";
+import { email } from "zod";
 
 export default function LoginPage() {
+  const { login } = useAuth();
   const router = useRouter();
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +29,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // await login(data.email, data.password);
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -39,7 +43,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
     } catch {
       setServerError("An error occurred. Please try again.");
     } finally {
@@ -60,7 +64,9 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-surface-container rounded-[2rem] p-8">
-          <h2 className="text-xl font-bold text-on-surface mb-6">Welcome back</h2>
+          <h2 className="text-xl font-bold text-on-surface mb-6">
+            Welcome back
+          </h2>
 
           {serverError && (
             <div className="mb-6 p-4 bg-error/10 border border-error/20 rounded-xl">
@@ -80,7 +86,9 @@ export default function LoginPage() {
                 placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="mt-2 text-sm text-error">{errors.email.message}</p>
+                <p className="mt-2 text-sm text-error">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -95,7 +103,9 @@ export default function LoginPage() {
                 placeholder="Enter your password"
               />
               {errors.password && (
-                <p className="mt-2 text-sm text-error">{errors.password.message}</p>
+                <p className="mt-2 text-sm text-error">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 
