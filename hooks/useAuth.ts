@@ -1,6 +1,12 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { useRouter } from "next/navigation";
 
 interface User {
@@ -17,7 +23,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }): React.ReactElement {
+export function AuthProvider({
+  children,
+}: {
+  children: ReactNode;
+}): React.ReactElement {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
       return { error: data.error || "Login failed" };
     }
 
-    setUser(data.user || { email });
     return {};
   };
 
@@ -65,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }): React.React
   };
 
   const value = { user, isLoading, login, logout };
-  
+
   return React.createElement(AuthContext.Provider, { value }, children);
 }
 
