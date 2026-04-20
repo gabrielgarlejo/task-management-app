@@ -109,13 +109,7 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
             <span className="material-symbols-outlined">view_kanban</span>
             <span className="text-[13px] font-medium">Kanban</span>
           </Link>
-          <a
-            className="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out hover:bg-surface-container-highest/50 text-on-surface-variant font-normal hover:text-on-surface"
-            href="#"
-          >
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-[13px] font-medium">Settings</span>
-          </a>
+
         </nav>
         <div className="mt-auto">
           {onNewTask && (
@@ -169,27 +163,7 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
             />
           </div>
         </div>
-        <div className="flex items-center gap-4 lg:gap-8">
-          <div className="flex items-center gap-6">
-            <a
-              className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-opacity"
-              href="#"
-            >
-              Projects
-            </a>
-            <a className="text-sm font-bold text-primary" href="#">
-              Analytics
-            </a>
-          </div>
-          <div className="flex items-center gap-4 text-on-surface-variant">
-            <button className="material-symbols-outlined hover:text-on-surface ease-[cubic-bezier(0.4,0,0.2,1)]">
-              notifications
-            </button>
-            <button className="material-symbols-outlined hover:text-on-surface ease-[cubic-bezier(0.4,0,0.2,1)]">
-              help_outline
-            </button>
-          </div>
-        </div>
+
       </header>
 
       <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
