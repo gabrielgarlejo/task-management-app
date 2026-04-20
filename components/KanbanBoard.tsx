@@ -18,6 +18,7 @@ import { KanbanTaskCard } from "./KanbanTaskCard";
 import { TaskDetailsModal } from "./TaskDetailsModal";
 import { TaskForm } from "./TaskForm";
 import { useTasks } from "@/contexts/TasksContext";
+import { useSearch } from "./AppLayout";
 import { PartialTaskFormData } from "@/types/task";
 
 const columnConfig = [
@@ -40,6 +41,7 @@ const columnConfig = [
 ];
 
 export function KanbanBoard() {
+  const searchQuery = useSearch() || "";
   const { groupedTasks, updateTaskStatus, isLoading, error, deleteTask, updateTask } = useTasks();
   const [activeTask, setActiveTask] = useState<{ id: string; task: Task } | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -64,6 +66,20 @@ export function KanbanBoard() {
     });
     return map;
   }, [groupedTasks]);
+
+  const filteredGroupedTasks = useMemo(() => {
+    if (!searchQuery.trim()) return groupedTasks;
+    const query = searchQuery.toLowerCase();
+    const filterFn = (task: Task) =>
+      task.title.toLowerCase().includes(query) ||
+      (task.description && task.description.toLowerCase().includes(query));
+    return {
+      todo: groupedTasks.todo.filter(filterFn),
+      in_progress: groupedTasks.in_progress.filter(filterFn),
+      done: groupedTasks.done.filter(filterFn),
+      overdue: groupedTasks.overdue.filter(filterFn),
+    };
+  }, [groupedTasks, searchQuery]);
 
   const findContainer = useCallback(
     (id: string): TaskStatus | undefined => {
@@ -163,7 +179,7 @@ export function KanbanBoard() {
               key={col.status}
               title={col.title}
               colorDot={col.colorDot}
-              tasks={groupedTasks[col.status] || []}
+              tasks={filteredGroupedTasks[col.status] || []}
               status={col.status}
               onTaskClick={setSelectedTask}
             />

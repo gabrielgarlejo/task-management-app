@@ -6,6 +6,7 @@ import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
 import { TaskDetailsModal } from "./TaskDetailsModal";
 import { useTasks } from "@/contexts/TasksContext";
+import { useSearch } from "./AppLayout";
 
 interface TaskListProps {
   externalFormOpen?: boolean;
@@ -16,16 +17,28 @@ export function TaskList({
   externalFormOpen,
   onExternalFormClose,
 }: TaskListProps) {
+  const searchQuery = useSearch() || "";
   const { tasks, createTask, updateTask, deleteTask, isLoading, error } = useTasks();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [internalFormOpen, setInternalFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [hideCompleted, setHideCompleted] = useState(false);
 
-  const filteredTasks = useMemo(
-    () => (hideCompleted ? tasks.filter((task) => task.status !== "done") : tasks),
-    [tasks, hideCompleted],
-  );
+  const filteredTasks = useMemo(() => {
+    let result = tasks;
+    if (hideCompleted) {
+      result = result.filter((task) => task.status !== "done");
+    }
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (task) =>
+          task.title.toLowerCase().includes(query) ||
+          (task.description && task.description.toLowerCase().includes(query)),
+      );
+    }
+    return result;
+  }, [tasks, hideCompleted, searchQuery]);
 
   const isFormOpen = externalFormOpen || internalFormOpen;
 

@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+
+const SearchContext = createContext<string | null>(null);
+
+export function useSearch() {
+  return useContext(SearchContext);
+}
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -13,6 +19,7 @@ interface AppLayoutProps {
 export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { user, logout, isLoading: authLoading } = useAuth();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -160,6 +167,8 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
               className="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant/50 w-full"
               placeholder="Search tasks, project files..."
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
@@ -167,7 +176,9 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
       </header>
 
       <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
-        {children}
+        <SearchContext.Provider value={searchQuery}>
+          {children}
+        </SearchContext.Provider>
       </main>
     </>
   );
