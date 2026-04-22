@@ -13,7 +13,7 @@ function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="block text-left w-full bg-surface-container-low hover:bg-surface-container-high px-4 py-3 rounded-xl transition-colors"
+      className="block text-left w-full bg-surface-container hover:bg-surface-container-high px-4 py-3 rounded-xl transition-colors"
     >
       <span className="text-sm font-medium text-on-surface line-clamp-1">
         {task.title}
@@ -39,7 +39,7 @@ function StatCard({
   return (
     <Link
       href={href}
-      className="flex items-center gap-4 bg-surface-container-low hover:bg-surface-container-high p-5 rounded-2xl transition-colors"
+      className="flex items-center gap-4 bg-surface-container hover:bg-surface-container-high border border-outline p-5 rounded-2xl transition-colors"
     >
       <span className="material-symbols-outlined text-3xl text-primary">
         {icon}
@@ -140,7 +140,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className="bg-surface-container-low rounded-2xl p-5">
+          <section className="bg-surface-container border border-outline rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-on-surface">
                 Tasks Due Today
@@ -162,7 +162,7 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="bg-surface-container-low rounded-2xl p-5">
+          <section className="bg-surface-container border border-outline rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-on-surface">Overdue</h3>
               <span className="text-xs font-medium text-error bg-error-container/30 px-2 py-1 rounded-full">
@@ -182,7 +182,7 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="bg-surface-container-low rounded-2xl p-5">
+          <section className="bg-surface-container border border-outline rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-on-surface">
                 Completed
@@ -204,7 +204,7 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="bg-surface-container-low rounded-2xl p-5">
+          <section className="bg-surface-container border border-outline rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-on-surface">
                 Recent Tasks

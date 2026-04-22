@@ -30,7 +30,7 @@ function TaskItemComponent({ task, onUpdate, onEdit, onClick }: TaskItemProps) {
 
   return (
     <div
-      className={`group bg-surface-container-low hover:bg-surface-container-high px-4 lg:px-8 py-4 lg:py-6 rounded-2xl ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer ${
+      className={`group bg-surface-container hover:bg-surface-container-high px-4 lg:px-8 py-4 lg:py-6 rounded-2xl ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer ${
         isDone ? "opacity-70" : ""
       }`}
       onClick={() => onClick?.(task)}

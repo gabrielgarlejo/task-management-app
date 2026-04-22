@@ -26,8 +26,8 @@ export function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex-shrink-0 w-[360px] flex flex-col gap-4 transition-colors ${
-        isOver ? "bg-surface-container-high/30 rounded-xl" : ""
+      className={`flex-shrink-0 w-[360px] flex flex-col gap-4 bg-surface-container rounded-2xl p-4 transition-colors ${
+        isOver ? "bg-surface-container-high/30" : ""
       }`}
     >
       <div className="flex items-center justify-between px-2 mb-2">
@@ -54,7 +54,7 @@ export function KanbanColumn({
             <KanbanTaskCard key={task.id} task={task} onClick={onTaskClick} />
           ))
         )}
-        <button className="w-full py-3 border-2 border-dashed border-outline-variant/10 rounded-xl text-on-surface-variant/40 hover:text-on-surface-variant hover:border-outline-variant/30 transition-all flex items-center justify-center gap-2">
+        <button className="w-full py-3 border-2 border-dashed border-outline/30 rounded-xl text-on-surface-variant/40 hover:text-on-surface-variant hover:border-outline/50 transition-all flex items-center justify-center gap-2">
           <span className="material-symbols-outlined text-lg">add</span>
           <span className="text-xs font-semibold uppercase tracking-widest">
             Add Task
