@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
 import { TasksProvider } from "@/contexts/TasksContext";
+import { ThemeProvider } from "@/hooks/useTheme";
 
 export const metadata: Metadata = {
   title: "TaskFlow - Editorial Workspace",
@@ -14,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -32,9 +33,11 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface text-on-surface min-h-screen">
-        <AuthProvider>
-          <TasksProvider>{children}</TasksProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <TasksProvider>{children}</TasksProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,6 +1,72 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
+  --color-background: #f8f9fc;
+  --color-surface: #ffffff;
+  --color-surface-dim: #f0f2f5;
+  --color-surface-container-low: #f5f7fa;
+  --color-surface-container: #eef0f4;
+  --color-surface-container-high: #e3e6ec;
+  --color-surface-container-highest: #d4d7de;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-bright: #d4d7de;
+
+  --color-on-surface: #0f1117;
+  --color-on-surface-variant: #5c6170;
+
+  --color-primary: #5b52ed;
+  --color-primary-fixed: #5b52ed;
+  --color-primary-fixed-dim: #5b52ed;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #ffffff;
+  --color-on-primary-fixed-variant: #4338ca;
+  --color-on-primary-container: #eef1ff;
+  --color-primary-container: #e0e1ff;
+
+  --color-secondary: #5c6170;
+  --color-secondary-fixed: #5c6170;
+  --color-secondary-fixed-dim: #5c6170;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #ffffff;
+  --color-on-secondary-fixed: #ffffff;
+  --color-on-secondary-fixed-variant: #0f1117;
+  --color-secondary-container: #c4c7cf;
+
+  --color-tertiary: #5c6170;
+  --color-tertiary-fixed: #5c6170;
+  --color-tertiary-fixed-dim: #5c6170;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-fixed: #ffffff;
+  --color-on-tertiary-fixed-variant: #0f1117;
+  --color-tertiary-container: #c4c7cf;
+  --color-on-tertiary-container: #ffffff;
+
+  --color-error: #dc2626;
+  --color-on-error: #ffffff;
+  --color-error-container: #fecaca;
+  --color-on-error-container: #7f1d1d;
+
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-success-container: #bbf7d0;
+  --color-warning-container: #fef3c7;
+
+  --color-outline: #d4d7de;
+  --color-outline-variant: #e3e6ec;
+
+  --color-inverse-surface: #0f1117;
+  --color-inverse-on-surface: #f8f9fc;
+  --color-inverse-primary: #5b52ed;
+
+  --color-on-background: #0f1117;
+
+  --font-family-headline: "Manrope", sans-serif;
+  --font-family-body: "Inter", sans-serif;
+}
+
+.dark {
   --color-background: #0f1117;
   --color-surface: #1a1d27;
   --color-surface-dim: #151821;
@@ -59,9 +125,6 @@
   --color-inverse-primary: #6c63ff;
 
   --color-on-background: #f0f2ff;
-
-  --font-family-headline: "Manrope", sans-serif;
-  --font-family-body: "Inter", sans-serif;
 }
 
 body {

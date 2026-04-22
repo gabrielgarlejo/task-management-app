@@ -1,8 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef, createContext, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  createContext,
+  useContext,
+} from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 
 const SearchContext = createContext<string | null>(null);
 
@@ -21,6 +29,7 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { user, logout, isLoading: authLoading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -116,7 +125,6 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
             <span className="material-symbols-outlined">view_kanban</span>
             <span className="text-[13px] font-medium">Kanban</span>
           </Link>
-
         </nav>
         <div className="mt-auto">
           {onNewTask && (
@@ -173,6 +181,12 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
           </div>
         </div>
 
+        <button
+          onClick={toggleTheme}
+          className="material-symbols-outlined text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-full hover:bg-surface-container-high"
+        >
+          {theme === "dark" ? "light_mode" : "dark_mode"}
+        </button>
       </header>
 
       <main className="lg:ml-[280px] pt-20 lg:pt-24 px-4 lg:px-12 pb-12">
