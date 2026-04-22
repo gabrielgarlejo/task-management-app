@@ -1,7 +1,7 @@
 "use client";
 
 import { Task, TaskFormData, PartialTaskFormData } from "@/types/task";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
 import { TaskDetailsModal } from "./TaskDetailsModal";
@@ -23,6 +23,23 @@ export function TaskList({
   const [internalFormOpen, setInternalFormOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [hideCompleted, setHideCompleted] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("hideCompleted");
+    if (saved) {
+      // Loading from localStorage during mount is a common pattern for client-only preferences
+      /* eslint-disable-next-line react-hooks/set-state-in-effect */
+      setHideCompleted(JSON.parse(saved));
+    }
+  }, []);
+
+  const toggleHideCompleted = useCallback(() => {
+    setHideCompleted((prev) => {
+      const newValue = !prev;
+      localStorage.setItem("hideCompleted", JSON.stringify(newValue));
+      return newValue;
+    });
+  }, []);
 
   const filteredTasks = useMemo(() => {
     let result = tasks;
@@ -99,7 +116,7 @@ export function TaskList({
           </span>
         </div>
         <button
-          onClick={() => setHideCompleted(!hideCompleted)}
+          onClick={toggleHideCompleted}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border-none cursor-pointer transition-colors ${
             hideCompleted
               ? "bg-primary/20 text-primary"
