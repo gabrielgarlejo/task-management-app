@@ -7,6 +7,7 @@ import { useTasks } from "@/contexts/TasksContext";
 import { Task } from "@/types/task";
 import Link from "next/link";
 import { TaskDetailsModal } from "@/components/TaskDetailsModal";
+import { TaskForm } from "@/components/TaskForm";
 import { getLocalDateString, formatDate } from "@/lib/date";
 
 function TaskCard({ task, onClick }: { task: Task; onClick: () => void }) {
@@ -57,6 +58,7 @@ function StatCard({
 export default function DashboardPage() {
   const { tasks, isLoading, groupedTasks, updateTask, deleteTask } = useTasks();
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const dashboardData = useMemo(() => {
     const today = getLocalDateString();
@@ -232,10 +234,28 @@ export default function DashboardPage() {
         <TaskDetailsModal
           task={selectedTask}
           onClose={() => setSelectedTask(null)}
-          onEdit={(task) => updateTask(task.id, task)}
+          onEdit={() => {
+            setIsEditModalOpen(true);
+          }}
           onDelete={(id) => deleteTask(id)}
         />
       )}
+
+      <TaskForm
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedTask(null);
+        }}
+        onSubmit={async (data) => {
+          if (selectedTask) {
+            await updateTask(selectedTask.id, data);
+            setIsEditModalOpen(false);
+            setSelectedTask(null);
+          }
+        }}
+        editTask={selectedTask}
+      />
     </AppLayout>
   );
 }

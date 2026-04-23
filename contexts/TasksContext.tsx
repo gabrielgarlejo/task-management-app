@@ -125,7 +125,6 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         setError(data.error);
         return false;
       }
-      setTasks((prev) => [data.task, ...prev]);
       return true;
     } catch {
       setError("Failed to create task");

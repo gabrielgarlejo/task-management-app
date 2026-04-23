@@ -88,14 +88,20 @@ function TaskItemComponent({ task, onUpdate, onEdit, onClick }: TaskItemProps) {
 
         <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onEdit(task)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(task);
+            }}
             className="material-symbols-outlined text-xl text-on-surface-variant hover:text-primary"
             title="Edit"
           >
             edit
           </button>
           <button
-            onClick={() => onClick?.(task)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(task);
+            }}
             className="material-symbols-outlined text-xl text-on-surface-variant hover:text-error"
             title="Delete"
           >
@@ -115,14 +121,20 @@ function TaskItemComponent({ task, onUpdate, onEdit, onClick }: TaskItemProps) {
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => onEdit(task)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(task);
+              }}
               className="material-symbols-outlined text-lg text-on-surface-variant hover:text-primary"
               title="Edit"
             >
               edit
             </button>
             <button
-              onClick={() => onClick?.(task)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.(task);
+              }}
               className="material-symbols-outlined text-lg text-on-surface-variant hover:text-error"
               title="Delete"
             >

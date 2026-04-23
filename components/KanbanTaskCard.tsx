@@ -52,7 +52,7 @@ function KanbanTaskCardComponent({ task, onClick }: KanbanTaskCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-surface-container p-5 rounded-xl transition-all group cursor-grab active:cursor-grabbing ${
+      className={`bg-surface-container hover:bg-surface-container-high p-5 rounded-xl transition-colors group cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-50" : ""
       } ${isDone ? "opacity-60 grayscale-[0.3]" : ""}`}
       onClick={(e) => {
