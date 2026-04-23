@@ -78,24 +78,20 @@ export async function DELETE(
     const { id } = await params;
     const supabaseServer = await getSupabaseServer();
 
-    const { data: existing } = await supabaseServer
+    const { data: deleted, error } = await supabaseServer
       .from("tasks")
-      .select("id, user_id")
+      .delete()
       .eq("id", id)
+      .eq("user_id", user.id)
+      .select("id")
       .single();
-
-    if (!existing) {
-      return NextResponse.json({ error: "Task not found" }, { status: 404 });
-    }
-
-    if (existing.user_id !== user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const { error } = await supabaseServer.from("tasks").delete().eq("id", id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });
