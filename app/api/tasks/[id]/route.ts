@@ -27,11 +27,15 @@ export async function PATCH(
     const body = await request.json();
     const validated = TaskUpdateSchema.parse(body);
 
-    const { data: existing } = await supabaseServer
+    const { data: existing, error: existingError } = await supabaseServer
       .from("tasks")
       .select("id, user_id")
       .eq("id", id)
-      .single();
+      .maybeSingle();
+
+    if (existingError) {
+      return NextResponse.json({ error: existingError.message }, { status: 500 });
+    }
 
     if (!existing) {
       return NextResponse.json({ error: "Task not found" }, { status: 404 });
@@ -41,15 +45,19 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const { data, error } = await supabaseServer
+    const { data, error: updateError } = await supabaseServer
       .from("tasks")
       .update({ ...validated, updated_at: new Date().toISOString() })
       .eq("id", id)
       .select()
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    if (!data) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
     return NextResponse.json({ task: data });
@@ -78,16 +86,16 @@ export async function DELETE(
     const { id } = await params;
     const supabaseServer = await getSupabaseServer();
 
-    const { data: deleted, error } = await supabaseServer
+    const { data: deleted, error: deleteError } = await supabaseServer
       .from("tasks")
       .delete()
       .eq("id", id)
       .eq("user_id", user.id)
       .select("id")
-      .single();
+      .maybeSingle();
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
     if (!deleted) {
