@@ -19,8 +19,13 @@ export async function getSupabaseWithAuth(): Promise<SupabaseClient> {
   });
 }
 
+let cachedSupabaseServer: SupabaseClient | null = null;
+
 export async function getSupabaseServer(): Promise<SupabaseClient> {
-  return createClient(config.supabaseUrl, config.supabaseServiceKey);
+  if (!cachedSupabaseServer) {
+    cachedSupabaseServer = createClient(config.supabaseUrl, config.supabaseServiceKey);
+  }
+  return cachedSupabaseServer;
 }
 
 export async function getCurrentUser() {
