@@ -48,15 +48,6 @@ export function LoginForm() {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <h1 className="text-2xl font-bold tracking-tight text-on-surface">
-            TaskFlow
-          </h1>
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-on-surface-variant mt-1">
-            Editorial Workspace
-          </p>
-        </div>
-
         <div className="bg-surface-container rounded-[2rem] p-8">
           <h2 className="text-xl font-bold text-on-surface mb-6">
             Welcome back

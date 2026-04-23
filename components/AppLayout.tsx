@@ -83,14 +83,6 @@ export function AppLayout({ children, activePage, onNewTask }: AppLayoutProps) {
             close
           </button>
         )}
-        <div className="mb-10 px-2">
-          <h1 className="text-xl font-bold tracking-tight text-on-surface">
-            TaskFlow
-          </h1>
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-on-surface-variant mt-1">
-            Editorial Workspace
-          </p>
-        </div>
         <nav className="flex-1 space-y-2">
           <Link
             className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out ${

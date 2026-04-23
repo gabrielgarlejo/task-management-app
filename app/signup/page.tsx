@@ -52,15 +52,6 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="text-center mb-10">
-            <h1 className="text-2xl font-bold tracking-tight text-on-surface">
-              TaskFlow
-            </h1>
-            <p className="text-[11px] font-semibold tracking-widest uppercase text-on-surface-variant mt-1">
-              Editorial Workspace
-            </p>
-          </div>
-
           <div className="bg-surface-container rounded-[2rem] p-8 text-center">
             <div className="mb-6 flex justify-center">
               <span className="material-symbols-outlined text-5xl text-primary">
@@ -92,15 +83,6 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-10">
-          <h1 className="text-2xl font-bold tracking-tight text-on-surface">
-            TaskFlow
-          </h1>
-          <p className="text-[11px] font-semibold tracking-widest uppercase text-on-surface-variant mt-1">
-            Editorial Workspace
-          </p>
-        </div>
-
         <div className="bg-surface-container rounded-[2rem] p-8">
           <h2 className="text-xl font-bold text-on-surface mb-6">
             Create account
@@ -124,7 +106,9 @@ export default function SignupPage() {
                 placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="mt-2 text-sm text-error">{errors.email.message}</p>
+                <p className="mt-2 text-sm text-error">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -139,7 +123,9 @@ export default function SignupPage() {
                 placeholder="At least 6 characters"
               />
               {errors.password && (
-                <p className="mt-2 text-sm text-error">{errors.password.message}</p>
+                <p className="mt-2 text-sm text-error">
+                  {errors.password.message}
+                </p>
               )}
             </div>
 

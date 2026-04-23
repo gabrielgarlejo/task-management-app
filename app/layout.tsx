@@ -4,11 +4,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { TasksProvider } from "@/contexts/TasksContext";
 import { ThemeProvider } from "@/hooks/useTheme";
 
-export const metadata: Metadata = {
-  title: "TaskFlow - Editorial Workspace",
-  description: "Task management app",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
